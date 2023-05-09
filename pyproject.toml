@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "노마드코더-airbnb-clone-backend"
+name = "airbnb-clone-backend"
 version = "0.1.0"
 description = ""
 authors = ["gkswk117 <gkswk117@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "노마드코더_airbnb_clone_backend"}]
+packages = [{include = "airbnb_clone_backend"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
