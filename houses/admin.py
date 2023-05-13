@@ -6,4 +6,6 @@ from .models import House
 @admin.register(House)
 # decorater
 class HouseAdmin(admin.ModelAdmin):
-    pass
+    list_display = ("name","price","address")
+    list_filter = ("name", "price")
+    search_fields = ("name",)
