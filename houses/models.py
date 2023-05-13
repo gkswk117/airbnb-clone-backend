@@ -9,3 +9,7 @@ class House(models.Model):
     price = models.PositiveIntegerField()
     description = models.TextField()
     address = models.CharField(max_length=140)
+
+# 4.1 Migration
+# 모델을 만들고 python manage.py makemigrations으로 migration만들어주기.
+# 그리고 python manage.py migrate으로 생성된 migration파일을 데이터베이스에 적용시켜주기
