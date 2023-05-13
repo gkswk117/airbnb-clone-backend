@@ -13,3 +13,4 @@ class House(models.Model):
 # 4.1 Migration
 # 모델을 만들고 python manage.py makemigrations으로 migration만들어주기.
 # 그리고 python manage.py migrate으로 생성된 migration파일을 데이터베이스에 적용시켜주기
+# 모델을 수정할 때도 항상 위와 같은 과정을 거쳐야 한다.
