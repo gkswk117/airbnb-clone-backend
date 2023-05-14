@@ -3,7 +3,10 @@ from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
 class User(AbstractUser):
-    pass
+    first_name = models.CharField(max_length=10, editable=False)
+    last_name = models.CharField(max_length=10, editable=False)
+    name = models.CharField(max_length=20)
+    is_host = models.BooleanField(default="False")
 # House model은 완전히 처음부터 우리가 다 만들어서 models.Model라고 빈 껍데기만 상속 받았음.
 # 하지만 User model은 Django의 user model의 속성 및 메소드를 모두 상속받을 것. CTRL+클릭 하면 속성 및 메서드를 모두 확인할 수 있다.
 # Django의 user model에서 굳이 뭘 더 수정할게 없어도, 이렇게 User model을 새로 만들어서 상속을 받아 쓰는게 훨씬 좋고, 공식 문서에서도 이렇게 하는걸 적극 추천하고 있다.
