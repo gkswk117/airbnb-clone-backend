@@ -9,6 +9,10 @@ class House(models.Model):
     price = models.PositiveIntegerField()
     description = models.TextField()
     address = models.CharField(max_length=140, help_text='Korean address')
+    owner = models.ForeignKey("users.User", on_delete=models.CASCADE)
+    # 5.5 Foreign Key
+    # MongoDB의 populate와 같은 기능.
+    # 다른 모델의 아이디 타입을 ForeignKey라고 한다.
     def __str__(self):
         return self.name
     #2.5 에서 배웠던 내용. 클래스를 print할 때 내가 원하는 것으로 출력하고 싶으면 __str__메서드의 리턴값에 집어넣기.
