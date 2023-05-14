@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 CUSTOM_APPS = [
     "houses.apps.HousesConfig",
+    "users.apps.UsersConfig"
 ]
 # python manage.py startapp {앱이름}으로 새로운 앱을 만들면 항상 INSTALLED_APPS에 추가시켜줘야 한다.
 
@@ -128,3 +129,8 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Auth
+
+AUTH_USER_MODEL = "users.User"
+# "{앱 이름}.{모델 이름}"
