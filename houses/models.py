@@ -13,6 +13,8 @@ class House(models.Model):
     # 5.5 Foreign Key
     # MongoDB의 populate와 같은 기능.
     # 다른 모델의 아이디 타입을 ForeignKey라고 한다.
+    # First argument => "{application이름}.{model이름}"
+    # on_delete => owner에 ID가 저장된 모델이 삭제되었을때 House 모델은 어떻게 할 것인지.
     def __str__(self):
         return self.name
     #2.5 에서 배웠던 내용. 클래스를 print할 때 내가 원하는 것으로 출력하고 싶으면 __str__메서드의 리턴값에 집어넣기.
