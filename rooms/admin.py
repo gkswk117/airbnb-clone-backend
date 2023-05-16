@@ -18,7 +18,9 @@ admin.site.register(House, HouseAdmin)
 """ or use decorater. """
 @admin.register(Room)
 class RoomAdmin(admin.ModelAdmin):
-    pass
+    list_display=("name","price","kind","owner")
+    list_filter=("country","city")
+    readonly_fields=("created_at","updated_at")
 @admin.register(Amenity)
 class AdminAdmin(admin.ModelAdmin):
-    pass
+    readonly_fields=("created_at","updated_at")

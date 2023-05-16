@@ -17,6 +17,7 @@ from common.models import CommonModel
 """
 class Room(CommonModel):
     """Room Model Definition"""
+    name = models.CharField(max_length=180, default="")
     country = models.CharField(max_length=50, default="한국")
     city = models.CharField(max_length=80, default="서울")
     price = models.PositiveIntegerField()
@@ -45,7 +46,9 @@ class Room(CommonModel):
     # 6.2 Many to Many
     # Foreign Key랑 똑같이 다른 모델과 연결을 해준다. 그 대신 다vs다 연결.
     # First argument => "{application이름}.{model이름}"
-
+    def __str__(self):
+       return self.name
+    
 class Amenity(CommonModel):
     """Amenity Definition"""
     name = models.CharField(max_length=150)
@@ -54,7 +57,11 @@ class Amenity(CommonModel):
        return self.name
     #2.5 에서 배웠던 내용. 클래스를 print할 때 내가 원하는 것으로 출력하고 싶으면 __str__메서드의 리턴값에 집어넣기.
     # underscroe method에 대한 자세한 내용은 네이버 메모 참고
-
+    """
+    class Meta:
+        verbose_name_plural = "Amenities"
+    """
+    
     """
     Many To One
     [Room1, Room2, Room3] => User1
