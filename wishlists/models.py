@@ -7,3 +7,5 @@ class Wishlist(CommonModel):
     room = models.ManyToManyField("rooms.Room")
     experience = models.ManyToManyField("experiences.Experience")
     user = models.ForeignKey("users.User", on_delete=models.CASCADE)
+    def __str__(self):
+       return self.name
