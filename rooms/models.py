@@ -35,6 +35,7 @@ class Room(CommonModel):
         SHARED_ROOM = ("shared_room", "Shared Room")
     kind = models.CharField(max_length=50 ,choices=RoomKindChoices.choices)
     owner = models.ForeignKey("users.User", on_delete=models.CASCADE)
+    category = models.ForeignKey("categories.Category", on_delete=models.SET_NULL, null=True, blank=True,)
     """
     # 5.5 Foreign Key
     # MongoDB의 populate와 같은 기능. 다른 모델과 연결을 해준다.
