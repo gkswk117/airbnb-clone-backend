@@ -39,6 +39,7 @@ CUSTOM_APPS = [
     "reviews.apps.ReviewsConfig",
     "wishlists.apps.WishlistsConfig",
     "bookings.apps.BookingsConfig",
+    "medias.apps.MediasConfig",
 ]
 # python manage.py startapp {앱이름}으로 새로운 앱을 만들면 항상 INSTALLED_APPS에 추가시켜줘야 한다.
 

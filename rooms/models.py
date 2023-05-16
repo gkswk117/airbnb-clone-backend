@@ -64,16 +64,21 @@ class Amenity(CommonModel):
     """
 
     """
-    Many To One
+    Many To One => models.ForeignKey 이용
     [Room1, Room2, Room3] => User1
-
-    One To Many
+    Room은 하나의 User만 가질 수 있고, User는 여러 Room을 가질 수 있다.
     """
-
-    """
-    Many To Many
-    [Amenity1, Amenity2, Amenity3] => [Room1, Room2, Room3]
     
+    """
+    One To One => models.OneToOneField 이용
+    Experience1 => Video1
+    Experience는 하나의 Video만 가질 수 있고, Video는 하나의 Experience만 가질 수 있다.
+    """
+    
+    """
+    Many To Many => models.ManyToManyField 이용
+    [Amenity1, Amenity2, Amenity3] => [Room1, Room2, Room3]
+    Amenity는 여러 Room을 가질 수 있고, Room은 여러 Amenity를 가질 수 있다.
     """
 
 
