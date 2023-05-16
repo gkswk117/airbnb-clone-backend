@@ -34,6 +34,7 @@ CUSTOM_APPS = [
     "users.apps.UsersConfig",
     "rooms.apps.RoomsConfig",
     "common.apps.CommonConfig",
+    "experiences.apps.ExperiencesConfig"
 ]
 # python manage.py startapp {앱이름}으로 새로운 앱을 만들면 항상 INSTALLED_APPS에 추가시켜줘야 한다.
 

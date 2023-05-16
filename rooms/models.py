@@ -52,7 +52,7 @@ class Room(CommonModel):
 class Amenity(CommonModel):
     """Amenity Definition"""
     name = models.CharField(max_length=150)
-    description = models.CharField(max_length=150, null=True)
+    description = models.TextField(default="")
     def __str__(self):
        return self.name
     #2.5 에서 배웠던 내용. 클래스를 print할 때 내가 원하는 것으로 출력하고 싶으면 __str__메서드의 리턴값에 집어넣기.
@@ -61,7 +61,7 @@ class Amenity(CommonModel):
     class Meta:
         verbose_name_plural = "Amenities"
     """
-    
+
     """
     Many To One
     [Room1, Room2, Room3] => User1
