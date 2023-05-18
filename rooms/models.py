@@ -49,6 +49,14 @@ class Room(CommonModel):
     # First argument => "{application이름}.{model이름}"
     def __str__(self):
        return self.name
+    def total_amenities_model(self):
+        print(f"total_amenities_model 메소드의 첫번째 인자인 self는 {self}")
+        # 위에 정의한 __str__메소드 때문에 인스턴스를 프린트하면 name 속성이 출력된다.
+        print(f"type of self is {type(self)}")
+        # 인스턴스의 타입을 출력해보면 클래스라고 나온다.
+        print(f"self.amenities.all() is {self.amenities.all()}")
+        print("\n")
+        return "total_amenities_model 입니다. + "+str(self.amenities.count())
     
 class Amenity(CommonModel):
     """Amenity Definition"""

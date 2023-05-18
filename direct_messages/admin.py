@@ -6,4 +6,4 @@ class ChatRoomAdmin(admin.ModelAdmin):
     list_display = ("__str__", "created_at", "updated_at",)
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
-    list_display = ("text","participants","room","created_at",)
+    list_display = ("text","participant","chat_room","created_at",)
