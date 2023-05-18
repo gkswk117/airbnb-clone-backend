@@ -42,6 +42,16 @@ class Room(CommonModel):
     # 다른 모델의 아이디 타입을 ForeignKey라고 한다.
     # First argument => "{application이름}.{model이름}"
     # on_delete => owner에 ID가 저장된 모델이 삭제되었을때 House 모델은 어떻게 할 것인지.
+
+    여기서 만약 owner가 소지하고 있는 room을 보고 싶다면 어떻게 해야할까?
+    => 1) noob #7.4 ForeignKey Filter (11:33)
+    이 방법의 단점은 한 유저가 가지고 있는 room을 검색하기 위해 모든 room을 전수검사(lookup)해야된다는 점.
+    이게 만약 인스타그램이라면? 한 유저가 가지고 있는 사진을 검색하기 위해서 인스타에 있는 모든 사진은 전수검사(lookup)해야됨.
+    room.owner.username
+    Room.objects.filter(owner__username="gkswk117")
+    user.room은 할 수 없을까?
+    => 2) pro #7.5 Reverse Accessors (11:27)
+    user.room_set.all()
     """
     amenities = models.ManyToManyField("rooms.Amenity")
     # 6.2 Many to Many
