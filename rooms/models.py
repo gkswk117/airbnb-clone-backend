@@ -66,7 +66,27 @@ class Room(CommonModel):
         # 인스턴스의 타입을 출력해보면 클래스라고 나온다.
         print(f"self.amenities.all() is {self.amenities.all()}")
         print("\n")
-        return "total_amenities_model 입니다. + "+str(self.amenities.count())
+        return "total_amenities_model 입니다. 나는 왜 되냐? + "+str(self.amenities.count())
+    def rating_average(self):
+        print("im rating")
+        if len(self.review_set.all())==0:
+            return "리뷰 없음."
+        sum =0
+        # noob
+        # for each in self.review_set.all():
+        #     sum = sum+each.rating
+        # return round(sum/len(self.review_set.all()),1)
+        """
+        이렇게 하면 review 안의 필요없는 것들도 다 받아오게 된다.
+        효율을 위해 Query 최적화가 필요하다.
+        print(self.review_set.all() ㅡㅡ
+        vs
+        print(self.review_set.all().values("rating")) ^^
+        """
+        # pro
+        for each in self.review_set.all().values("rating"):
+            sum = sum+each["rating"]
+        return round(sum/len(self.review_set.all().values("rating")),1)   
     
 class Amenity(CommonModel):
     """Amenity Definition"""
