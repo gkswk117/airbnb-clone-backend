@@ -21,6 +21,11 @@ class RoomAdmin(admin.ModelAdmin):
     list_display=("name","price","rating_average","orm_practice","total_amenities_model","total_amenities_admin","kind","owner")
     list_filter=("country","city")
     readonly_fields=("created_at","updated_at")
+    search_fields = (
+        "name",
+        "^price",
+        "=owner__username",
+    )
     # admin 패널에 있는 모든 메소드는 admin 패널에서 호출될 때 두 번째 매개변수로 모델의 인스턴스가 들어간다.
     def orm_practice(self, room):
         print(Room.objects.filter(created_at__year =2023))
@@ -34,6 +39,7 @@ class RoomAdmin(admin.ModelAdmin):
         print(type(room.amenities))
         print("\n")
         return "total_amenities_admin 입니다. + "+str(room.amenities.count())
+    
 @admin.register(Amenity)
 class AdminAdmin(admin.ModelAdmin):
     readonly_fields=("created_at","updated_at")
