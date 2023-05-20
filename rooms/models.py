@@ -29,6 +29,7 @@ class Room(CommonModel):
     # created_at = models.DateTimeField(auto_now_add=True)
     # updated_at = models.DateTimeField(auto_now=True)
     # => 우리가 만든 CommonModel을 상속받았기 때문에 여기에는 안적어줘도 된다.
+
     class RoomKindChoices(models.TextChoices):
         ENTIRE_PLACE = ("entire_place", "Entire Place")
         PRIVATE_ROOM = ("private_room", "Private Room")
@@ -59,6 +60,8 @@ class Room(CommonModel):
     # First argument => "{application이름}.{model이름}"
     def __str__(self):
        return self.name
+    
+    # 7.3 Admin Method
     def total_amenities_model(self):
         print(f"total_amenities_model 메소드의 첫번째 인자인 self는 {self}")
         # 위에 정의한 __str__메소드 때문에 인스턴스를 프린트하면 name 속성이 출력된다.
@@ -67,6 +70,8 @@ class Room(CommonModel):
         print(f"self.amenities.all() is {self.amenities.all()}")
         print("\n")
         return "total_amenities_model 입니다. 나는 왜 되냐? + "+str(self.amenities.count())
+    
+    # 8.0 Methods
     def rating_average(self):
         print("im rating")
         if len(self.review_set.all())==0:
@@ -118,6 +123,3 @@ class Amenity(CommonModel):
     [Amenity1, Amenity2, Amenity3] => [Room1, Room2, Room3]
     Amenity는 여러 Room을 가질 수 있고, Room은 여러 Amenity를 가질 수 있다.
     """
-
-
-
