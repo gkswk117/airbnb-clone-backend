@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from rooms.views import say_hello
+from rooms.views import see_all_rooms
 urlpatterns = [
     path('admin/', admin.site.urls),
     #path('rooms', say_hello )
