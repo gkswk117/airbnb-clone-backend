@@ -5,10 +5,11 @@
   <li>
     <a href="/rooms/{{room.pk}}">
       {{room.name}}<br />
+      Amenities<br />
       {% for amenity in room.amenities.all %}
-      <span>-{{amenity.name}}<br /></span>
-      {% endfor%}</a
-    >
+      <span>✔{{amenity.name}}<br /></span>
+      {% endfor%}
+    </a>
   </li>
   {% endfor %}
 </ul>
