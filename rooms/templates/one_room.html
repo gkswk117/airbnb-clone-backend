@@ -1,9 +1,11 @@
-{% if is_found %}
+{% if error_code == 1 %}
 <h1>{{room.name}}</h1>
 <h3>{{room.country}}/{{room.city}}</h3>
 <h4>{{room.price}}</h4>
 <p>{{room.description}}</p>
 <h5>{{room.category.name}}</h5>
-{% else %}
+{% elif error_code == 2 %}
 <h1>404 not found</h1>
+{% elif error_code == 3 %}
+<h1>zerodivision</h1>
 {% endif %}

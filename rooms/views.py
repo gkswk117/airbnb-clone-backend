@@ -16,16 +16,21 @@ def see_all_rooms(request):
 def see_one_room(request, room_pk):
     # url에서 변수를 넘겨받을 때, urls.py에 적힌 이름과 같은 이름을 써줘야 한다.
     # javascript의 try, catch 구문이랑 비슷하다.
-    try:
+    try:       
         room = Room.objects.get(pk=room_pk)
+        print(2/0)
+        # print(2/0)의 위치가 앞이면 ZeroDivisionError 에러가 전달,
+        # room = Room.objects.get(pk=room_pk)의 위치가 앞이면 Room.DoesNotExist 에러가 전달된다.
         print(room_pk)
         print(room)
         print(dir(Room.DoesNotExist))
-        return render(request, "one_room.html", {'room':room, 'is_found':True})
+        return render(request, "one_room.html", {'room':room, 'error_code':1})
     except Room.DoesNotExist:
         #Room.DoesNotExist는 에러의 한 종류
         #Room.DoesNotExist라는 에러가 발생 했을때 이 블록을 실행한다.
         #에러의 종류 중에는 ZeroDivisionError, IndexError 등 여러 가지가 있고, Room.DoesNotExist는 그 중 하나이다.
         #참고: https://blog.naver.com/star7sss/222444006350
-        return render(request, "one_room.html", {'is_found':False})
+        return render(request, "one_room.html", {'error_code':2})
+    except ZeroDivisionError:
+        return render(request, "one_room.html", {'error_code':3})
     
