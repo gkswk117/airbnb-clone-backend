@@ -30,6 +30,11 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+THIRD_PARTY_APPS = [
+    "rest_framework",
+]
+# django rest framework를 설치한 다음에 INSTALLED_APPS에 추가해줘야 한다고 적혀있음.
+
 CUSTOM_APPS = [
     "users.apps.UsersConfig",
     "rooms.apps.RoomsConfig",
@@ -54,7 +59,7 @@ SYSTEM_APPS = [
     'django.contrib.staticfiles',
 ]
 
-INSTALLED_APPS = CUSTOM_APPS+SYSTEM_APPS
+INSTALLED_APPS = CUSTOM_APPS+SYSTEM_APPS+THIRD_PARTY_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

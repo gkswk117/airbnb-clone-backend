@@ -19,8 +19,9 @@ from django.urls import path, include
 from rooms.views import see_all_rooms
 urlpatterns = [
     path('admin/', admin.site.urls),
-    #path('rooms', say_hello )
-    path('rooms/', include("rooms.urls"))
+    path('rooms_test', see_all_rooms ),
+    path('rooms/', include("rooms.urls")),
     #include의 의미: rooms/~~ 로 오는 url은 모두 rooms.urls로 가시오.
     #nodejs, reactjs의 router 개념이랑 똑같음.
+    path('categories/', include("categories.urls"))
 ]
