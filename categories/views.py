@@ -14,8 +14,9 @@ from .serialrizers import CategorySerializer
 def categories_html(request):
     all_categories= Category.objects.all()
     print(all_categories[0].name)
+    # super noob
+    # return HttpResponse("post!!!")
     return render(request, "html.html", {'potatos':all_categories, 'title':'모든 카테고리 리스트입니다.'})
-    # return JsonResponse({'ok':True, "categories":serializers.serialize("json",all_categories)})
     
 # pro
 # 다이나믹 UI를 구현하는데 reactjs만한게 없다. 바로 렌더링 하는게 아니라 서버에서는 json 형식의 데이터를 보내기만(response하기만) 한다.
@@ -31,32 +32,30 @@ def categories_for_react(request):
     # => api_view() decorator
 
 # hacker
-@api_view()
-def see_all_categories(request):
-    all_categories= Category.objects.all()
-    serializer = CategorySerializer(all_categories, many=True)
-    # 여기서 CategorySerializer는 우리가 커스터마이징한 serializer이다. 
-    return Response({'ok':True,'categories':serializer.data})
-    # Response함수를 쓰려면 api_view() decorator가 있어야 한다.
-    # api_view() decorator가 없으면 JsonResponse로 못생긴 json을 받으면 된다.
-
-#빈칸으로 비워두면 디폴트로 get request만 받음.
-#이렇게 하면 get request와 post request 모두 받겠다고 설정하는것.
 @api_view(['GET', 'POST'])
-def see_one_category(request, pk):
+# 빈칸으로 비워두면 디폴트로 get request만 받음.
+# 이렇게 하면 get request와 post request 모두 받겠다고 설정하는것.
+def see_all_categories(request):
     if request.method == "GET":
-        one_category=Category.objects.get(pk=pk)
-        print(one_category)
-        serializer = CategorySerializer(one_category)
-        return Response({'ok':True, 'category':serializer.data})
+        all_categories= Category.objects.all()
+        serializer = CategorySerializer(all_categories, many=True)
+        # 여기서 CategorySerializer는 우리가 커스터마이징한 serializer이다. 
+        return Response({'ok':True,'categories':serializer.data})
+        # Response함수를 쓰려면 api_view() decorator가 있어야 한다.
+        # api_view() decorator가 없으면 JsonResponse로 못생긴 json을 받으면 된다.
     elif request.method == "POST":
-        # return HttpResponse("post!!!")
         print(request.data)
         serializer = CategorySerializer(data=request.data)
         # json => Query Set 으로 변환하기 위해서는 data=을 붙여줘야 한다.
         if serializer.is_valid():
-            return Response({'ok':'posted!!!'})
+            new_category = serializer.save()
+            return Response(CategorySerializer(new_category).data,)
         else: 
             return Response(serializer.errors)
-        
-        
+
+@api_view()
+def see_one_category(request, pk):
+    one_category=Category.objects.get(pk=pk)
+    print(one_category)
+    serializer = CategorySerializer(one_category)
+    return Response({'ok':True, 'category':serializer.data})
