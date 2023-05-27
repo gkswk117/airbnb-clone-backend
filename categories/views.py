@@ -4,6 +4,7 @@ from django.http import  JsonResponse
 from django.core import serializers
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
 from .models import Category
 from .serialrizers import CategorySerializer
 # Create your views here.
@@ -53,9 +54,22 @@ def see_all_categories(request):
         else: 
             return Response(serializer.errors)
 
-@api_view()
+@api_view(['GET','PUT'])
 def see_one_category(request, pk):
-    one_category=Category.objects.get(pk=pk)
-    print(one_category)
-    serializer = CategorySerializer(one_category)
-    return Response({'ok':True, 'category':serializer.data})
+    try:
+        one_category=Category.objects.filter(pk=pk)
+        print(one_category)
+    except Category.DoesNotExist:
+        raise NotFound
+        # return이랑 raise랑 다른점. return은 status code를 200으로 보내지만, raise는 raise 옆에 적힌 에러 코드(NotFound의 경우 404)를 보낸다.
+    if request.method == 'GET':
+        serializer = CategorySerializer(one_category, many=True)
+        return Response({'ok':True, 'category':serializer.data})
+    elif request.method == 'PUT':
+        serializer = CategorySerializer(one_category, data=request.data, partial = True)
+        if serializer.is_valid():
+            updated_count = serializer.save()
+            return Response({"updated_count":updated_count})
+            #return Response(CategorySerializer(new_category).data)
+        else:
+            return Response(serializer.errors)
