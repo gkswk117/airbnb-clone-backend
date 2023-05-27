@@ -10,9 +10,11 @@ from .models import Category
 from rest_framework.views import APIView
 from .serializers import CategorySerializer
 # Create your views here.
-# Django rest Framework를 사용하기 전에 수동적으로 하는 방법을 먼저 배울 것.
+# 이제 본격적으로 django rest framework의 마법을 부릴 시간.
 
 class SeeAllCategories(APIView):
+    # APIView가 사용자의 요청 메소드에 따라 request를 자동으로 라우팅 해준다.
+    # 예를 들면, get request가 오면 "get" method 호출.
     def get(self, request):
         all_categories= Category.objects.all()
         serializer = CategorySerializer(all_categories, many=True)
@@ -34,6 +36,7 @@ class SeeOneCategory(APIView):
         return one_category
     def get(self, request, pk):
         serializer = CategorySerializer(self.get_object(pk), many=True)
+        print(serializer)
         return Response({'ok':True, 'category':serializer.data})
     def put(self, request, pk):
         serializer = CategorySerializer(self.get_object(pk), data=request.data, partial = True)
