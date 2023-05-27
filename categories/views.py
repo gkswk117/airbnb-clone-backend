@@ -5,6 +5,7 @@ from django.core import serializers
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
+from rest_framework.status import HTTP_204_NO_CONTENT
 from .models import Category
 from .serialrizers import CategorySerializer
 # Create your views here.
@@ -54,12 +55,11 @@ def see_all_categories(request):
         else: 
             return Response(serializer.errors)
 
-@api_view(['GET','PUT'])
+@api_view(['GET','PUT', 'DELETE'])
+# GET이나 POST로 put, delete를 대체할 수 있지만 서버간 보내는 신호, 약속 정도로 생각해주면 된다.
 def see_one_category(request, pk):
-    try:
-        one_category=Category.objects.filter(pk=pk)
-        print(one_category)
-    except Category.DoesNotExist:
+    one_category=Category.objects.filter(pk=pk)
+    if not len(one_category):
         raise NotFound
         # return이랑 raise랑 다른점. return은 status code를 200으로 보내지만, raise는 raise 옆에 적힌 에러 코드(NotFound의 경우 404)를 보낸다.
     if request.method == 'GET':
@@ -73,3 +73,6 @@ def see_one_category(request, pk):
             #return Response(CategorySerializer(new_category).data)
         else:
             return Response(serializer.errors)
+    elif request.method == "DELETE":
+        one_category.delete()
+        return Response(status=HTTP_204_NO_CONTENT)

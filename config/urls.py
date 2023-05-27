@@ -20,8 +20,9 @@ from rooms.views import see_all_rooms
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('rooms_test', see_all_rooms ),
-    path('rooms/', include("rooms.urls")),
+    path('api/v1/rooms/', include("rooms.urls")),
     #include의 의미: rooms/~~ 로 오는 url은 모두 rooms.urls로 가시오.
     #nodejs, reactjs의 router 개념이랑 똑같음.
-    path('categories/', include("categories.urls"))
+    path('api/v1/categories/', include("categories.urls"))
+    #헷갈림 방지용으로 api를 위한 url을 api/{버전정보}를 앞에 붙여주기로 함.
 ]
