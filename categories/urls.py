@@ -1,8 +1,11 @@
 from django.urls import path
-from .views import categories_html, categories_for_react, see_all_categories, see_one_category
+from . import views_previous
+from . import views
 urlpatterns = [
-    path('', see_all_categories),
-    path('html', categories_html),
-    path('react', categories_for_react),
-    path('<int:pk>', see_one_category)
+    #path('', views.see_all_categories),
+    path('', views.SeeAllCategories.as_view()),
+    path('html', views_previous.categories_html),
+    path('react', views_previous.categories_for_react),
+    #path('<int:pk>', views.see_one_category)
+    path('<int:pk>', views.SeeOneCategory.as_view())
 ]
