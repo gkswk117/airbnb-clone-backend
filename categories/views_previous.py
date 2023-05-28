@@ -9,6 +9,7 @@ from rest_framework.status import HTTP_204_NO_CONTENT
 from .models import Category
 from .serializers import CategorySerializer
 # Create your views here.
+# (1) Basic, Previous code
 # Django rest Framework를 사용하기 전에 수동적으로 하는 방법을 먼저 배울 것.
 
 # noob
