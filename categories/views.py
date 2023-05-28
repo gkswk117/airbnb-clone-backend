@@ -7,23 +7,53 @@ from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from rest_framework.status import HTTP_204_NO_CONTENT
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
 from .models import Category
 from .serializers import CategorySerializer
 # Create your views here.
-# (3) ViewSet
-# 이제 본격적으로 django rest framework의 마법을 부릴 시간.
+# (2) APIView
+# django rest framework의 APIView를 이용해 좀 더 코드를 깔끔하게 바꿀 수 있다. (리팩토링)
 
-class CategoryViewSet(ModelViewSet):
-    serializer_class = CategorySerializer
-    queryset = Category.objects.all()
+# (중요!!) view를 view_APIView.py로 쓸 때는 seializer를 serializers_previous.py로 써야한다.
+# serializers_new.py의 ModelSerializer는 첫번째 인자로 무조건 single object만 받는다.
+# 여기에서는 Serializer의 첫번째 인자로 QuerySet을 넘겨줬다.
 
-    # ㄴㅇㄱ 끝? 개.쩐.다. 단 세 줄. 이게 모두 ModelViewSet 덕분.
-    # 근데 ModelSerializer는 그냥 모델의 형식을 가져오는것이므로 개꿀~하면서 맘껏 쓰면 되는데, (단순 복붙 작업을 없애줌.)
-    # ViewSet은 사용할 때 고민을 해봐야 한다.
-    # ViewSet이 정한 기능들(list, create, retrieve, partial_update, destroy...)에 추가 기능을 넣길 원한다면?
-    # category를 지우기 전에 이메일을 보내고 싶거나, 사용가자 소유하고 있는 category만 retrieve하고 싶거나, 사용자가 host(관리자)인지 확인하고 싶거나, 사용자가 이메일 인증을 했는지 확인하고 싶거나 등등.
-    # ViewSet을 커스텀해야되는 머리 아픈 상황이 발생. (워드프레스로 홈페이지 만들때 커스텀하는 과정을 상상해보셈.)
-    # ViewSet을 커스텀하려면 어떻게 해야되는지 그 내부 코드를 들춰봐야되고 구글링도 해봐야되고... 오히려 더 귀찮음.
-    # 커스터마이징하고 싶은 기능이 많으면 그냥 이전에 했던것 처럼 너가 코드를 다 작성하는게 더 좋을 수 있다.
-    # 그래서 우리는 최종적으로 APIView를 사용할 것.
+class SeeAllCategories(APIView):
+    # APIView가 사용자의 요청 메소드에 따라 request를 자동으로 라우팅 해준다.
+    # if, elif 쓸 필요 없다.
+    # 예를 들면, get request가 오면 "get" method 호출.
+    def get(self, request):
+        all_categories= Category.objects.all()
+        serializer = CategorySerializer(all_categories, many=True)
+        return Response({'ok':True,'categories':serializer.data})
+    def post(self, request):
+        print(request.data)
+        serializer = CategorySerializer(data=request.data)
+        if serializer.is_valid():
+            new_category = serializer.save()
+            return Response(CategorySerializer(new_category).data,)
+        else: 
+            return Response(serializer.errors)
+
+class SeeOneCategory(APIView):
+    def get_queryset(self, pk):
+        one_category=Category.objects.filter(pk=pk)
+        if not len(one_category):
+            raise NotFound
+        return one_category
+    def get(self, request, pk):
+        serializer = CategorySerializer(self.get_queryset(pk), many=True)
+        return Response({'ok':True, 'category':serializer.data})
+    def put(self, request, pk):
+        serializer = CategorySerializer(self.get_queryset(pk), data=request.data, partial = True)
+        # partial=True는 required=True를 무시할 수 있게 해준다. 일부만 보내겠다는 뜻.
+        if serializer.is_valid():
+            updated_count = serializer.save()
+            return Response({"updated_count":updated_count})
+            #return Response(CategorySerializer(new_category).data)
+        else:
+            return Response(serializer.errors)
+    def delete(self, request, pk):
+        self.get_queryset(pk)[0].delete()
+        # self.get_queryset(pk).delete()
+        # 둘 다 된다. 왜냐하면 Model.delete() 메소드도 있고, QuerySet.delete() 메소드도 있기 때문.
+        return Response(status=HTTP_204_NO_CONTENT)

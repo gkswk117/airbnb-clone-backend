@@ -1,7 +1,10 @@
 from django.urls import path
-from .views import see_all_rooms, see_one_room
+from . import views
 # config/urls.py에서 /rooms/~~ 경로는 모두 이쪽으로 가라고 설정함.
 urlpatterns = [
-    path('', see_all_rooms),
-    path('<int:room_pk>', see_one_room)
+    # path('', views.see_all_rooms),
+    # path('<int:room_pk>', views.see_one_room),
+
+    path('amenities/', views.SeeAllAmenities.as_view()),
+    path('amenities/<int:pk>', views.SeeOneAmenity.as_view()),
 ]

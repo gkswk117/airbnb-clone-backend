@@ -12,6 +12,10 @@ from .serializers import CategorySerializer
 # (1) Basic, Previous code
 # Django rest Framework를 사용하기 전에 수동적으로 하는 방법을 먼저 배울 것.
 
+# (중요!!) view를 view_APIView.py로 쓸 때는 seializer를 serializers_previous.py로 써야한다.
+# serializers_new.py의 ModelSerializer는 첫번째 인자로 무조건 single object만 받는다.
+# 여기에서는 Serializer의 첫번째 인자로 QuerySet을 넘겨줬다.
+
 # noob
 # django template을 이용해 바로 html로 렌더링.
 def categories_html(request):
@@ -42,9 +46,10 @@ def see_all_categories(request):
     if request.method == "GET":
         all_categories= Category.objects.all()
         serializer = CategorySerializer(all_categories, many=True)
-        # 여기서 CategorySerializer는 우리가 커스터마이징한 serializer이다. 
+        # 여기서 CategorySerializer는 우리가 커스터마이징한 serializer 클래스이다. 
+        # serializer에 저장된 인스턴스에는 data라는 속성이 있고,
         return Response({'ok':True,'categories':serializer.data})
-        # Response함수를 쓰려면 api_view() decorator가 있어야 한다.
+        # Response함수를 쓰려면 api_view() decorator 또는 나중에 배울 APIView가 있어야 한다.
         # api_view() decorator가 없으면 JsonResponse로 못생긴 json을 받으면 된다.
     elif request.method == "POST":
         print(request.data)

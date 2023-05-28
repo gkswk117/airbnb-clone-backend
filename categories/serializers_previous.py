@@ -8,13 +8,13 @@ class CategorySerializer(serializers.Serializer):
     # 모델과 다르게 정의해도 된다. 어떤 형식으로 받을지 내가 정할 수 있다.
     # 예를 들면 pk는 InterField인데, 여기에서는 CharField로 할 수 있다.
     # 다만, 모델과 형식이 똑같아야지 POST 요청으로 받은 데이터를 그대로 데이터베이스에 넣을 수 있겠지.
-    # 근데 뭔가 노가다가 좀 있다. 이건 나중에 다 지우고 django rest framework의 개쩌는 방식으로 바꿀것.
+    # 근데 뭔가 노가다가 좀 있다. 이건 나중에 다 지우고 django rest framework의 개쩌는 방식(ModelSerializer)으로 바꿀것.
 
     # Any 'read_only' fields that are incorrectly included in the serializer input will be ignored.
     # 출처: https://www.django-rest-framework.org/api-guide/fields/
     # 따라서 pk와 created_at이 포함된 json을 CategorySerializer에 넣어도 오류는 안나는 것. 그냥 무시하기 때문.
 
-    # Section 10에서 배우는 serializers.Serializer의 메소드 및 속성
+    # Section 10에서 배우는 serializers.Serializer의 속성 및 메소드
     # errors
     # save()
 
@@ -46,17 +46,17 @@ class CategorySerializer(serializers.Serializer):
 
     def update(self, instance, validated_data):
         # QuerySet과 Class 인스턴스가 서로 헷갈려서 작성한 연습용 코드
-        print(type(Category.objects.filter(pk=1)))#QuerySet (필터링 조건을 만족하는 Category 인스턴스들의 배열)
+        # print(type(Category.objects.filter(pk=1)))#QuerySet (필터링 조건을 만족하는 Category 인스턴스들의 배열)
         # <class 'django.db.models.query.QuerySet'>
-        print(type(Category.objects.get(pk=1)))#Class 인스턴스 (get 조건을 만족하는 하나의 Category 인스턴스)
+        # print(type(Category.objects.get(pk=1)))#Class 인스턴스 (get 조건을 만족하는 하나의 Category 인스턴스)
         # <class 'categories.models.Category'>
 
         # nico's way.
         # Using the save() method of a model instance.
         """
+        # dict 메소드 get() 이용
         instance.name = validated_data.get("name", instance.name)
         instance.kind = validated_data.get("kind", instance.kind)
-        # dict 메소드 get()
         instance.save()
         """
         # hanwoong's way.

@@ -45,8 +45,9 @@ CUSTOM_APPS = [
     "wishlists.apps.WishlistsConfig",
     "bookings.apps.BookingsConfig",
     "medias.apps.MediasConfig",
-    "direct_messages.apps.DirectMessagesConfig"
+    "direct_messages.apps.DirectMessagesConfig",
     # 각 앱의 apps.py의 클래스 이름을 그대로 넣어주면 된다.
+    "testAPP.apps.TestappConfig",
 ]
 # python manage.py startapp {앱이름}으로 새로운 앱을 만들면 항상 INSTALLED_APPS에 추가시켜줘야 한다.
 
