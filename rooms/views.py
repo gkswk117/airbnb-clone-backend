@@ -21,16 +21,16 @@ class SeeAllAmenities(APIView):
             return Response(serializer.errors)
 
 class SeeOneAmenity(APIView):
-    def get_object(self, request, pk):
+    def get_object(self, pk):
         try:
             return Amenity.objects.get(pk=pk)
         except Amenity.DoesNotExist:
-            return NotFound
+            raise NotFound
     def get(self,request,pk):
         serializer = AmenitySerializer(self.get_object(pk))
         return Response(serializer.data)
     def put(self,request,pk):
-        serializer = AmenitySerializer(self.get_object(pk), data=request.data)
+        serializer = AmenitySerializer(self.get_object(pk), data=request.data, partial=True)
         if serializer.is_valid():
             updated_amenity = serializer.save()
             return Response(AmenitySerializer(updated_amenity).data)
