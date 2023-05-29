@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from .models import Room
 # Create your views here.
 # (1) django templates
+# Section 9 URLS AND VIEWS 코드
 
 def see_all_rooms(request):
     print(f"{request}\n")

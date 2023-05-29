@@ -26,6 +26,7 @@ class SeeOneTests(APIView):
         return one_category
     def get(self, request, pk):
         serializer = TestSerializer(self.get_object(pk))
+        print(serializer)
         return Response({'ok':True, 'category':serializer.data})
     def put(self, request, pk):
         serializer = TestSerializer(self.get_object(pk), data=request.data, partial = True)
