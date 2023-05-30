@@ -22,6 +22,7 @@ class CategorySerializer(serializers.Serializer):
         # serializer.save()를 호출하면 인스턴스의 내부에 create 또는 update라고 정의되어있는 함수를 호출한다.
         # serializers.Serializer => BaseSerializer 코드 참고.
         print(validated_data)
+        # validated_data에는 views.py에서 Serializer를 호출할 때 data={}에 담긴 데이터가 들어있다.
         created_instance = Category.objects.create(**validated_data)
         # (chatGPT)Model.objects.create()) returns a newly created instance of the model class.
         # It represents the object that was just created and saved to the database.
