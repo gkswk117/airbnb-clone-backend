@@ -58,19 +58,34 @@ class SeeAllRooms(APIView):
                 category_pk = request.data["category"]
                 # 당연 사용자는 request를 보낼 때 pk를 직접 입력하지 않는다. 내가 예쁜 UI를 만들어서 선택하게 할 것.
                 if not category_pk:
-                    raise ParseError
+                    raise ParseError('Category is required.')
                 else:
                     try:
                         category = Category.objects.get(pk=category_pk)
-                        print(category)
                         if not category.kind == Category.CategoryKindChoices.ROOMS:
-                            raise ParseError
+                            raise ParseError("Category's kind is not ROOMS.")
                     except Category.DoesNotExist:
-                        raise ParseError
+                        raise ParseError('Cateogry does not exist.')
                     new_room = serializer.save(owner=request.user, category=category)
-                    # save()메서드로 create나 update 메소드의 validated_data에 추가로 데이터를 추가해주고 싶다면,
+                    # Foreign key로 연결된 관계를 저장할 때.
+                    # save()메서드로 create나 update 메소드의 validated_data에 추가로 데이터를 추가해주고 `싶다면,
                     # save()메서드를 호출할 때, 데이터를 괄호 안에 추가해주면 끝이다.
-                    # serializers.py 주석 참고
+                    # serializers.py 주석 및 네이버 메모 참고
+
+                    print("type of new_room is")
+                    print(type(new_room))
+                    # <class 'rooms.models.Room'>
+
+                    amenities = request.data['amenities']
+                    for each in amenities:
+                        try:
+                            amenity = Amenity.objects.get(pk=each)
+                        except Amenity.DoesNotExist:
+                            raise ParseError(f'Amenity whose id is {each} does not exist.')
+                            #or pass
+                        new_room.amenities.add(amenity)
+                        # ManyToMany로 연결된 관계를 저장할 때.
+                        # 이 때는 단순히 new_room.amenities = amenity로 할 수 없다.
                     return Response(RoomDetailSerializer(new_room).data)
             else:
                 return Response(serializer.errors)
