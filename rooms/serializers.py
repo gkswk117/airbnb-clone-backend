@@ -32,5 +32,7 @@ class RoomDetailSerializer(ModelSerializer):
     """
     # Serializer.save()를 호출할 때, owner=request.user를 넣어줬다고 해서 create를 정의 해줄 필요 없다. 
     # 아니, create 메소드를 다시 정의해서 Room의 owner에 User의 pk를 넣어줘야되지 않나?
-    # No. ModelSerializer가 알아서 해준다.
-
+    # No.
+    # save()메서드로 create나 update 메소드의 validated_data에 추가로 데이터를 추가해주고 싶다면,
+    # save()메서드를 호출할 때, 데이터를 괄호 안에 owner면 user 객체 전체를, category면 category 객체 전체를 추가해주면 끝이다.
+    # 나머지는 ModelSerializer가 알아서 해준다.
