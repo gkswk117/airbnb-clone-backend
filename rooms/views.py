@@ -48,7 +48,12 @@ class Rooms(APIView):
         serializer=RoomListSerializer(all_rooms,many=True)
         return Response(serializer.data)
     def post(self, request):
-        pass
+        serializer = RoomDetailSerializer(data=request.data)
+        if serializer.is_valid():
+            new_room = serializer.save()
+            return Response(RoomDetailSerializer(new_room).data)
+        else:
+            return Response(serializer.errors)
 
 class RoomDetail(APIView):
     def get_object(self, pk):

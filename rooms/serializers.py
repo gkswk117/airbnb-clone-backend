@@ -14,7 +14,8 @@ class RoomListSerializer(ModelSerializer):
         fields = ['pk', 'name', 'country', 'city', 'price']
 
 class RoomDetailSerializer(ModelSerializer):
-    owner = TinyUserSerializer()
+    owner = TinyUserSerializer(read_only=True)
+    # owner에 대한 data는 사용자의 request로 수정되지 않음.
     amenities = AmenitySerializer(many=True)
     category = CategorySerializer()
     class Meta:
