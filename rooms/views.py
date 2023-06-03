@@ -83,32 +83,32 @@ class SeeAllRooms(APIView):
         return Response(RoomDetailSerializer(new_room).data)
         
         # Nico's way
-        """
-        try:
-            with transaction.atomic():
-            # transaction 안의 모든 코드가 진행될때까지 db상의 어떠한 수정도 이루어지지 않는다.
-            # transaction 안의 모든 코드가 진행되면 그제서야 코드 상의 변경점을 한번에 db에 푸시해서 db를 수정한다.
-            # 모든 코드가 진행되는 동안 어떠한 에러라도 나면 db를 건드리지 않는다.
-            # 밖에서 보기에는 transaction 안에서 db상의 어떠한 에러라도 나면 이전 상태로 원상복구 시키는 것 처럼 보인다.
-                new_room = serializer.save(owner=request.user, category=category)
-                # Foreign key로 연결된 관계를 저장할 때.
-                # save()메서드로 create나 update 메소드의 validated_data에 추가로 데이터를 추가해주고 싶다면,
-                # save()메서드를 호출할 때, 데이터를 괄호 안에 추가해주면 끝이다.
-                # serializers.py 주석 및 네이버 메모 참고
+    """
+    try:
+        with transaction.atomic():
+        # transaction 안의 모든 코드가 진행될때까지 db상의 어떠한 수정도 이루어지지 않는다.
+        # transaction 안의 모든 코드가 진행되면 그제서야 코드 상의 변경점을 한번에 db에 푸시해서 db를 수정한다.
+        # 모든 코드가 진행되는 동안 어떠한 에러라도 나면 db를 건드리지 않는다.
+        # 밖에서 보기에는 transaction 안에서 db상의 어떠한 에러라도 나면 이전 상태로 원상복구 시키는 것 처럼 보인다.
+            new_room = serializer.save(owner=request.user, category=category)
+            # Foreign key로 연결된 관계를 저장할 때.
+            # save()메서드로 create나 update 메소드의 validated_data에 추가로 데이터를 추가해주고 싶다면,
+            # save()메서드를 호출할 때, 데이터를 괄호 안에 추가해주면 끝이다.
+            # serializers.py 주석 및 네이버 메모 참고
 
-                print("type of new_room is")
-                print(type(new_room))
-                # <class 'rooms.models.Room'>
+            print("type of new_room is")
+            print(type(new_room))
+            # <class 'rooms.models.Room'>
 
-                amenities = request.data['amenities']
-                for each in amenities:
-                    amenity = Amenity.objects.get(pk=each)
-                    new_room.amenities.add(amenity)
-                    # ManyToMany로 연결된 관계를 저장하는 첫 번째 방법.
-                return Response(RoomDetailSerializer(new_room).data)
-        except:
-            raise ParseError("Amenity not found")
-        """
+            amenities = request.data['amenities']
+            for each in amenities:
+                amenity = Amenity.objects.get(pk=each)
+                new_room.amenities.add(amenity)
+                # ManyToMany로 연결된 관계를 저장하는 첫 번째 방법.
+            return Response(RoomDetailSerializer(new_room).data)
+    except:
+        raise ParseError("Amenity not found")
+    """
 
 class SeeOneRoom(APIView):
     def get_object(self, pk):
@@ -129,9 +129,16 @@ class SeeOneRoom(APIView):
         serializer = RoomDetailSerializer(room, data=request.data, partial=True)
         if not serializer.is_valid():
             return Response(serializer.errors)
+        # noob
+        # category_pk = request.data['category']
+        # amenities = request.data['amenities']
+        # 이러면 request.data에 category 또는 amenities가 없을 때 에러가 난다.
         
+        # pro
         category_pk = request.data.get('category')
         amenities_pk = request.data.get('amenities')
+        # 따라서 category 또는 amenities가 없을 때 None을 전달해주기 위해서는 이처럼 get() 메소드를 써줘야 한다.
+        # 객체에서 속성값을 가져올때는 직접적으로 가져오지 말고 get() 메소드를 쓰자.
         save_object = {}
         if category_pk:
             try:
@@ -161,3 +168,34 @@ class SeeOneRoom(APIView):
             raise PermissionDenied
         room.delete()
         return Response(status=HTTP_204_NO_CONTENT)
+    
+    # transaction 연습용 코드
+    def put_v2(self, request, pk):
+        if not request.user.is_authenticated:
+            raise NotAuthenticated
+        room = self.get_object(pk)
+        if request.user != room.owner:
+            raise PermissionDenied
+        serializer = RoomDetailSerializer(room, data=request.data, partial=True)
+        if not serializer.is_valid():
+            return Response(serializer.errors)
+        updated_room = serializer.save()
+        try:
+            category = Category.objects.get(pk=request.data.get("category"))
+            if not category.kind == Category.CategoryKindChoices.ROOMS:
+                raise ParseError("Category's kind is not ROOMS.")
+            updated_room.category = category
+        except Category.DoesNotExist:
+            raise ParseError('Cateogry does not exist.')
+        with transaction.atomic():
+            try:
+                amenities = request.data.get('amenities')
+                #updated_room.amenities.clear()
+                for each in amenities:
+                    amenity = Amenity.objects.get(pk=each)
+                    updated_room.amenities.add(amenity)
+                updated_room.save()
+                return Response(RoomDetailSerializer(updated_room).data)
+            except Amenity.DoesNotExist:
+                raise ParseError("Amenity not found")
+            
