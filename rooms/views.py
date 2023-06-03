@@ -48,7 +48,7 @@ class SeeAllRooms(APIView):
     def get(self, request):
         print(request.user)
         all_rooms=Room.objects.all()
-        serializer=RoomListSerializer(all_rooms,many=True)
+        serializer=RoomListSerializer(all_rooms,many=True,context={"request":request})
         return Response(serializer.data)
     def post(self, request):
         if not request.user.is_authenticated:
@@ -117,7 +117,7 @@ class SeeOneRoom(APIView):
         except Room.DoesNotExist:
             raise NotFound
     def get(self, request, pk):
-        serializer = RoomDetailSerializer(self.get_object(pk))
+        serializer = RoomDetailSerializer(self.get_object(pk), context={"request":request})
         return Response(serializer.data)
 
     def put(self, request, pk):
