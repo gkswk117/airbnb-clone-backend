@@ -2,6 +2,7 @@ from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from .models import Amenity, Room
 from users.serializers import TinyUserSerializer
 from categories.serializers import CategorySerializer
+from reviews.serializers import ReviewSerializer
 
 class AmenitySerializer(ModelSerializer):
     class Meta:
@@ -20,18 +21,29 @@ class RoomListSerializer(ModelSerializer):
         fields = ['pk', 'name', 'country', 'city', 'price','rating','is_owner']
 
 class RoomDetailSerializer(ModelSerializer):
+    # Model에서 ForeignKey가 저장되어있는 field는 그냥 ForeignKey(id, 숫자)만 보여진다.
+    # 만약 ForeignKey로 연결되어있는 모델을 가져와 보여주고 싶다면 아래와 같이 각 모델의 Serializer를 이용한다.
     owner = TinyUserSerializer(read_only=True)
     category = CategorySerializer(read_only=True)
     amenities = AmenitySerializer(read_only=True, many=True)
     # owner, category, amenities에 대한 data는 사용자의 request에 의해 직접적으로 수정되지 않음.
     # new_room = serializer.save(owner=request.user, category=category, amenities=amenities_list)
     # 처럼 내가 서버쪽에서 코드를 짜서 넣어줄 것.
+    
+    # Reverse Serializer
+    # Reverse Accessor 덕분에 Room 모델 안에는 review_set field가 자동으로 생성되어 있다.
+    review_set = ReviewSerializer(read_only=True, many=True)
+
+
+    # 원래는 Model에 있는 field만 ModelSerializer에서 field로 쓸 수 있지만,
+    # SerializerMethodField를 통해 custom field를 만들 수 있다.
     rating = SerializerMethodField()
     def get_rating(self, room):
         return room.rating_average()
     is_owner = SerializerMethodField()
     def get_is_owner(self, room):
         return self.context.get("request").user == room.owner
+    
     class Meta:
         model = Room
         fields = "__all__"

@@ -73,7 +73,6 @@ class Room(CommonModel):
     
     # 8.0 Methods
     def rating_average(self):
-        print("im rating")
         if len(self.review_set.all())==0:
             return "리뷰 없음."
         sum =0
