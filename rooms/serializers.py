@@ -1,4 +1,4 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from .models import Amenity, Room
 from users.serializers import TinyUserSerializer
 from categories.serializers import CategorySerializer
@@ -9,9 +9,12 @@ class AmenitySerializer(ModelSerializer):
         fields = ('name','description')
         
 class RoomListSerializer(ModelSerializer):
+    rating = SerializerMethodField()
+    def get_rating(self, room):
+        return room.rating_average()
     class Meta:
         model = Room
-        fields = ['pk', 'name', 'country', 'city', 'price']
+        fields = ['pk', 'name', 'country', 'city', 'price','rating']
 
 class RoomDetailSerializer(ModelSerializer):
     owner = TinyUserSerializer(read_only=True)
@@ -20,6 +23,9 @@ class RoomDetailSerializer(ModelSerializer):
     # owner, category, amenities에 대한 data는 사용자의 request에 의해 직접적으로 수정되지 않음.
     # new_room = serializer.save(owner=request.user, category=category, amenities=amenities_list)
     # 처럼 내가 서버쪽에서 코드를 짜서 넣어줄 것.
+    rating = SerializerMethodField()
+    def get_rating(self, room):
+        return room.rating_average()
     class Meta:
         model = Room
         fields = "__all__"
