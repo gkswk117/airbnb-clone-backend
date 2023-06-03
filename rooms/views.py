@@ -120,6 +120,39 @@ class SeeOneRoom(APIView):
         serializer = RoomDetailSerializer(self.get_object(pk))
         return Response(serializer.data)
 
+    def put(self, request, pk):
+        if not request.user.is_authenticated:
+            raise NotAuthenticated
+        room = self.get_object(pk)
+        if request.user != room.owner:
+            raise PermissionDenied
+        serializer = RoomDetailSerializer(room, data=request.data, partial=True)
+        if not serializer.is_valid():
+            return Response(serializer.errors)
+        
+        category_pk = request.data.get('category')
+        amenities_pk = request.data.get('amenities')
+        save_object = {}
+        if category_pk:
+            try:
+                category = Category.objects.get(pk=category_pk)
+                if not category.kind == Category.CategoryKindChoices.ROOMS:
+                    raise ParseError("Category's kind is not ROOMS.")
+                save_object["category"] = category
+            except Category.DoesNotExist:
+                raise ParseError('Cateogry does not exist.')
+        if amenities_pk:
+            save_object["amenities"]=[]
+            for each in amenities_pk:
+                try:
+                    amenity = Amenity.objects.get(pk=each)
+                    save_object["amenities"].append(amenity)
+                except Amenity.DoesNotExist:
+                    raise ParseError('Amenity whose id is does not exist.')
+        print(save_object)
+        updated_room = serializer.save(**save_object)
+        return Response(RoomDetailSerializer(updated_room).data)
+
     def delete(self, request, pk):
         room = self.get_object(pk)
         if not request.user.is_authenticated:
