@@ -15,9 +15,11 @@ class RoomListSerializer(ModelSerializer):
 
 class RoomDetailSerializer(ModelSerializer):
     owner = TinyUserSerializer(read_only=True)
-    # owner에 대한 data는 사용자의 request로 수정되지 않음.
-    amenities = AmenitySerializer(read_only=True, many=True)
     category = CategorySerializer(read_only=True)
+    amenities = AmenitySerializer(read_only=True, many=True)
+    # owner, category, amenities에 대한 data는 사용자의 request에 의해 직접적으로 수정되지 않음.
+    # new_room = serializer.save(owner=request.user, category=category, amenities=amenities_list)
+    # 처럼 내가 서버쪽에서 코드를 짜서 넣어줄 것.
     class Meta:
         model = Room
         fields = "__all__"
@@ -28,7 +30,7 @@ class RoomDetailSerializer(ModelSerializer):
     # def create(self, validated_data):
     #     print("내가 돌아왔다!")
     #     print(validated_data)
-    #     return self
+    #     return
     
     # Serializer.save()를 호출할 때, owner=request.user를 넣어줬다고 해서 create를 정의 해줄 필요 없다. 
     # 아니, create 메소드를 다시 정의해서 Room의 owner에 User의 pk를 넣어줘야되지 않나?

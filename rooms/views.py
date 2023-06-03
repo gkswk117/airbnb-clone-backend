@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_204_NO_CONTENT
-from rest_framework.exceptions import NotFound, NotAuthenticated, ParseError
+from rest_framework.exceptions import NotFound, NotAuthenticated, ParseError, PermissionDenied
 from django.db import transaction
 from .models import Amenity, Room
 from categories.models import Category
@@ -51,66 +51,64 @@ class SeeAllRooms(APIView):
         serializer=RoomListSerializer(all_rooms,many=True)
         return Response(serializer.data)
     def post(self, request):
-        if request.user.is_authenticated:
-            # django는 request안에 로그인 되어있는 user에 대한 정보를 자동으로 넣어준다.
-            # 우리가 따로 설정해두지 않아도 request.user로 갖다 쓰면 된다.
-            serializer = RoomDetailSerializer(data=request.data)
-            if serializer.is_valid():
-                category_pk = request.data["category"]
-                # 당연 사용자는 request를 보낼 때 pk를 직접 입력하지 않는다. 내가 예쁜 UI를 만들어서 선택하게 할 것.
-                if not category_pk:
-                    raise ParseError('Category is required.')
-                try:
-                    category = Category.objects.get(pk=category_pk)
-                    if not category.kind == Category.CategoryKindChoices.ROOMS:
-                        raise ParseError("Category's kind is not ROOMS.")
-                except Category.DoesNotExist:
-                    raise ParseError('Cateogry does not exist.')
-                # Hanwoong's way
-                amenities_pk_list = request.data['amenities']
-                amenities_list = []
-                for each in amenities_pk_list:
-                    try:
-                        amenity = Amenity.objects.get(pk=each)
-                        amenities_list.append(amenity)
-                    except Amenity.DoesNotExist:
-                        raise ParseError(f"Amenity whose id is {each} does not exist.")
-                new_room = serializer.save(owner=request.user, category=category, amenities=amenities_list)
-                # ManyToMany로 연결된 관계를 저장하는 두 번째 방법. 니코 강의 #11.9의 댓글 참고.
-                # 이렇게 하면 애초에 db에 저장을 하기전에 Error를 raise 시키니까 transaction을 쓸 필요도 없음.
-                return Response(RoomDetailSerializer(new_room).data)
-                
-                # Nico's way
-                """
-                try:
-                    with transaction.atomic():
-                    # transaction 안의 모든 코드가 진행될때까지 db상의 어떠한 수정도 이루어지지 않는다.
-                    # transaction 안의 모든 코드가 진행되면 그제서야 코드 상의 변경점을 한번에 db에 푸시해서 db를 수정한다.
-                    # 모든 코드가 진행되는 동안 어떠한 에러라도 나면 db를 건드리지 않는다.
-                    # 밖에서 보기에는 transaction 안에서 db상의 어떠한 에러라도 나면 이전 상태로 원상복구 시키는 것 처럼 보인다.
-                        new_room = serializer.save(owner=request.user, category=category)
-                        # Foreign key로 연결된 관계를 저장할 때.
-                        # save()메서드로 create나 update 메소드의 validated_data에 추가로 데이터를 추가해주고 `싶다면,
-                        # save()메서드를 호출할 때, 데이터를 괄호 안에 추가해주면 끝이다.
-                        # serializers.py 주석 및 네이버 메모 참고
-
-                        print("type of new_room is")
-                        print(type(new_room))
-                        # <class 'rooms.models.Room'>
-
-                        amenities = request.data['amenities']
-                        for each in amenities:
-                            amenity = Amenity.objects.get(pk=each)
-                            new_room.amenities.add(amenity)
-                            # ManyToMany로 연결된 관계를 저장하는 첫 번째 방법.
-                        return Response(RoomDetailSerializer(new_room).data)
-                except:
-                    raise ParseError("Amenity not found")
-                """
-            else:
-                return Response(serializer.errors)
-        else:
+        if not request.user.is_authenticated:
             raise NotAuthenticated
+            # django는 request 안에 로그인 되어있는 user에 대한 정보를 자동으로 넣어준다.
+            # 우리가 따로 설정해두지 않아도 request.user로 갖다 쓰면 된다.
+        serializer = RoomDetailSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors)
+        category_pk = request.data["category"]
+        # 당연 사용자는 request를 보낼 때 pk를 숫자로 직접 입력하지 않는다. 내가 예쁜 UI를 만들어서 선택하게 할 것.
+        if not category_pk:
+            raise ParseError('Category is required.')
+        try:
+            category = Category.objects.get(pk=category_pk)
+            if not category.kind == Category.CategoryKindChoices.ROOMS:
+                raise ParseError("Category's kind is not ROOMS.")
+        except Category.DoesNotExist:
+            raise ParseError('Cateogry does not exist.')
+        # my way
+        amenities_pk_list = request.data['amenities']
+        amenities_list = []
+        for each in amenities_pk_list:
+            try:
+                amenity = Amenity.objects.get(pk=each)
+                amenities_list.append(amenity)
+            except Amenity.DoesNotExist:
+                raise ParseError(f"Amenity whose id is {each} does not exist.")
+        new_room = serializer.save(owner=request.user, category=category, amenities=amenities_list)
+        # ManyToMany로 연결된 관계를 저장하는 두 번째 방법. 니코 강의 #11.9의 댓글 참고.
+        # 이렇게 하면 애초에 db에 저장을 하기전에 Error를 raise 시키니까 transaction을 쓸 필요도 없음.
+        return Response(RoomDetailSerializer(new_room).data)
+        
+        # Nico's way
+        """
+        try:
+            with transaction.atomic():
+            # transaction 안의 모든 코드가 진행될때까지 db상의 어떠한 수정도 이루어지지 않는다.
+            # transaction 안의 모든 코드가 진행되면 그제서야 코드 상의 변경점을 한번에 db에 푸시해서 db를 수정한다.
+            # 모든 코드가 진행되는 동안 어떠한 에러라도 나면 db를 건드리지 않는다.
+            # 밖에서 보기에는 transaction 안에서 db상의 어떠한 에러라도 나면 이전 상태로 원상복구 시키는 것 처럼 보인다.
+                new_room = serializer.save(owner=request.user, category=category)
+                # Foreign key로 연결된 관계를 저장할 때.
+                # save()메서드로 create나 update 메소드의 validated_data에 추가로 데이터를 추가해주고 싶다면,
+                # save()메서드를 호출할 때, 데이터를 괄호 안에 추가해주면 끝이다.
+                # serializers.py 주석 및 네이버 메모 참고
+
+                print("type of new_room is")
+                print(type(new_room))
+                # <class 'rooms.models.Room'>
+
+                amenities = request.data['amenities']
+                for each in amenities:
+                    amenity = Amenity.objects.get(pk=each)
+                    new_room.amenities.add(amenity)
+                    # ManyToMany로 연결된 관계를 저장하는 첫 번째 방법.
+                return Response(RoomDetailSerializer(new_room).data)
+        except:
+            raise ParseError("Amenity not found")
+        """
 
 class SeeOneRoom(APIView):
     def get_object(self, pk):
@@ -121,13 +119,12 @@ class SeeOneRoom(APIView):
     def get(self, request, pk):
         serializer = RoomDetailSerializer(self.get_object(pk))
         return Response(serializer.data)
-    def put(self, request, pk):
-        serializer = RoomDetailSerializer(self.get_object(pk), data=request.data, partial=True)
-        if serializer.is_valid():
-            updated_room = serializer.save()
-            Response(RoomDetailSerializer(updated_room).data)
-        else:
-            Response(serializer.errors)
+
     def delete(self, request, pk):
-        self.get_object(pk).delete()
+        room = self.get_object(pk)
+        if not request.user.is_authenticated:
+            raise NotAuthenticated
+        if request.user != room.owner:
+            raise PermissionDenied
+        room.delete()
         return Response(status=HTTP_204_NO_CONTENT)
