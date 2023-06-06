@@ -6,6 +6,7 @@ from django.db import transaction
 from .models import Amenity, Room
 from categories.models import Category
 from .serializers import AmenitySerializer, RoomListSerializer, RoomDetailSerializer, ReviewSerializer
+from django.conf import settings
 # Create your views here.
 # (2) rest api for react
 
@@ -213,7 +214,17 @@ class RoomReviews(APIView):
         except ValueError:
             page = 1
         room = self.get_object(pk)
-        serializer = ReviewSerializer(room.review_set.all()[3*(page-1):3*page], many=True)
-        # [n:m] n번째부터 m번째 앞까지 불러오시오.
+        print(settings.PAGE_SIZE)
+        serializer = ReviewSerializer(room.review_set.all()[settings.PAGE_SIZE*(page-1):settings.PAGE_SIZE*page], many=True)
+        # pagination => [n:m] n번째부터 m번째 앞까지 불러오시오.
+        # from django.conf import settings => settings.py에 있는 설정값을 불러온다.
         return Response(serializer.data)
-        
+
+class RoomPhotos(APIView):
+    def get_object(self, pk):
+        try:
+            return Room.objects.get(pk=pk)
+        except Room.DoesNotExist:
+            raise NotFound
+    def post(self, request, pk):
+        pass

@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf.urls.static import static
+from django.conf import settings
 #from rooms.views import see_all_rooms
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,4 +29,8 @@ urlpatterns = [
     #include의 의미: rooms/~~ 로 오는 url은 모두 rooms.urls로 가시오.
     #nodejs, reactjs의 router 개념이랑 똑같음.
     #헷갈림 방지용으로 api를 위한 url을 api/{버전정보}를 앞에 붙여주기로 함.
-]
+] + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
+# 브라우저가 MEDIA_URL로 가면 서버의 MEDIA_ROOT에 있는 파일을 보여주라는 것.
+# https://docs.djangoproject.com/en/4.2/howto/static-files/#serving-files-uploaded-by-a-user-during-development
+# 하지만 이렇게 하면 보안상의 문제가 있다.
+# https://docs.djangoproject.com/en/4.2/ref/settings/#std-setting-MEDIA_URL

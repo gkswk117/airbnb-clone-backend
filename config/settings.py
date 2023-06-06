@@ -149,3 +149,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = "users.User"
 # "{앱 이름}.{모델 이름}"
+
+MEDIA_ROOT = "uploads"
+# django에서 파일 업로드를 했을때 서버의 어느 폴더에 위치하게 될지 알려주는 코드
+MEDIA_URL = "user-uploads/"
+# 이건 파일을 사용자에게 노출하는 방법이고, 위에꺼는 서버에 파일이 실제로 있는 위치.
+PAGE_SIZE = 3
