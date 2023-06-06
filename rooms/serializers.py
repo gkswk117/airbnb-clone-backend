@@ -32,8 +32,11 @@ class RoomDetailSerializer(ModelSerializer):
     
     # Reverse Serializer
     # Reverse Accessor 덕분에 Room 모델 안에는 review_set field가 자동으로 생성되어 있다.
-    review_set = ReviewSerializer(read_only=True, many=True)
+    # review_set = ReviewSerializer(read_only=True, many=True)
 
+    # 하지만 이 방법은 모든 review를 다 가지고 오기 때문에, 너무 많은 데이터를 가져오게된다.
+    # review가 10,000개면 10,000개 다 불러올거? ㄴㄴ
+    # 그래서 사용할 것이 pagination
 
     # 원래는 Model에 있는 field만 ModelSerializer에서 field로 쓸 수 있지만,
     # SerializerMethodField를 통해 custom field를 만들 수 있다.

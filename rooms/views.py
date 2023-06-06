@@ -5,7 +5,7 @@ from rest_framework.exceptions import NotFound, NotAuthenticated, ParseError, Pe
 from django.db import transaction
 from .models import Amenity, Room
 from categories.models import Category
-from .serializers import AmenitySerializer, RoomListSerializer, RoomDetailSerializer
+from .serializers import AmenitySerializer, RoomListSerializer, RoomDetailSerializer, ReviewSerializer
 # Create your views here.
 # (2) rest api for react
 
@@ -198,4 +198,22 @@ class SeeOneRoom(APIView):
                 return Response(RoomDetailSerializer(updated_room).data)
             except Amenity.DoesNotExist:
                 raise ParseError("Amenity not found")
-            
+
+class RoomReviews(APIView):
+    def get_object(self, pk):
+        try:
+            return Room.objects.get(pk=pk)
+        except Room.DoesNotExist:
+            raise NotFound
+    def get(self, request, pk):
+        try:
+            page = request.query_params.get('page', 1)
+            # url로부터 parameter를 전달받는 방법
+            page = int(page)
+        except ValueError:
+            page = 1
+        room = self.get_object(pk)
+        serializer = ReviewSerializer(room.review_set.all()[3*(page-1):3*page], many=True)
+        # [n:m] n번째부터 m번째 앞까지 불러오시오.
+        return Response(serializer.data)
+        
