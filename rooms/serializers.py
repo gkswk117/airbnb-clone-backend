@@ -2,7 +2,6 @@ from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from .models import Amenity, Room
 from users.serializers import TinyUserSerializer
 from categories.serializers import CategorySerializer
-from reviews.serializers import ReviewSerializer
 
 class AmenitySerializer(ModelSerializer):
     class Meta:
@@ -45,7 +44,11 @@ class RoomDetailSerializer(ModelSerializer):
         return room.rating_average()
     is_owner = SerializerMethodField()
     def get_is_owner(self, room):
-        return self.context.get("request").user == room.owner
+        request = self.context.get("request")
+        if request:
+            return request.user == room.owner
+        else:
+            return "확인할 수 없습니다."       
     
     class Meta:
         model = Room

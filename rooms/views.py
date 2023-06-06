@@ -5,7 +5,9 @@ from rest_framework.exceptions import NotFound, NotAuthenticated, ParseError, Pe
 from django.db import transaction
 from .models import Amenity, Room
 from categories.models import Category
-from .serializers import AmenitySerializer, RoomListSerializer, RoomDetailSerializer, ReviewSerializer
+from .serializers import AmenitySerializer, RoomListSerializer, RoomDetailSerializer
+from reviews.serializers import ReviewSerializer
+from medias.serializers import PhotoSerializer
 from django.conf import settings
 # Create your views here.
 # (2) rest api for react
@@ -227,4 +229,16 @@ class RoomPhotos(APIView):
         except Room.DoesNotExist:
             raise NotFound
     def post(self, request, pk):
-        pass
+        if not request.user.is_authenticated:
+            raise NotAuthenticated
+        room = self.get_object(pk)
+        if request.user != room.owner:
+            raise PermissionDenied
+        serializer = PhotoSerializer(data=request.data)
+        if serializer.is_valid():
+            photo= serializer.save(room=room)
+            print("여기까진 되냐?")
+            return Response(PhotoSerializer(photo).data)
+        else:
+            return Response(serializer.errors)
+        

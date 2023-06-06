@@ -32,5 +32,6 @@ urlpatterns = [
 ] + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
 # 브라우저가 MEDIA_URL로 가면 서버의 MEDIA_ROOT에 있는 파일을 보여주라는 것.
 # https://docs.djangoproject.com/en/4.2/howto/static-files/#serving-files-uploaded-by-a-user-during-development
-# 하지만 이렇게 하면 보안상의 문제가 있다.
+# 개발하는 환경에서는 상관없지만, 배포할 서버에서는 이렇게 하면 보안상의 문제가 있고, 디스크 용량 문제도 있다.
 # https://docs.djangoproject.com/en/4.2/ref/settings/#std-setting-MEDIA_URL
+# 그래서 사용자가 업로드 하는 파일은 다른 서버에 넣고, django 서버에는 파일이 저장된 외부 서버의 위치만 저장할 것.
