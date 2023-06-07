@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_204_NO_CONTENT
 from rest_framework.exceptions import NotFound, NotAuthenticated, ParseError, PermissionDenied
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from django.db import transaction
 from .models import Amenity, Room
 from categories.models import Category
@@ -9,6 +10,7 @@ from .serializers import AmenitySerializer, RoomListSerializer, RoomDetailSerial
 from reviews.serializers import ReviewSerializer
 from medias.serializers import PhotoSerializer
 from django.conf import settings
+
 # Create your views here.
 # (2) rest api for react
 
@@ -48,16 +50,18 @@ class SeeOneAmenity(APIView):
         return Response(status=HTTP_204_NO_CONTENT)
 
 class SeeAllRooms(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
     def get(self, request):
         print(request.user)
         all_rooms=Room.objects.all()
         serializer=RoomListSerializer(all_rooms,many=True,context={"request":request})
         return Response(serializer.data)
     def post(self, request):
-        if not request.user.is_authenticated:
-            raise NotAuthenticated
-            # django는 request 안에 로그인 되어있는 user에 대한 정보를 자동으로 넣어준다.
-            # 우리가 따로 설정해두지 않아도 request.user로 갖다 쓰면 된다.
+        # if not request.user.is_authenticated:
+        #     raise NotAuthenticated
+        # django는 request 안에 로그인 되어있는 user에 대한 정보를 자동으로 넣어준다.
+        # 우리가 따로 설정해두지 않아도 request.user로 갖다 쓰면 된다.
+        # 그리고 이 코드는 permission_classes로 대체할 수 있다.
         serializer = RoomDetailSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors)
@@ -114,6 +118,7 @@ class SeeAllRooms(APIView):
     """
 
 class SeeOneRoom(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
     def get_object(self, pk):
         try:
             return Room.objects.get(pk=pk)
@@ -124,8 +129,8 @@ class SeeOneRoom(APIView):
         return Response(serializer.data)
 
     def put(self, request, pk):
-        if not request.user.is_authenticated:
-            raise NotAuthenticated
+        # if not request.user.is_authenticated:
+        #     raise NotAuthenticated
         room = self.get_object(pk)
         if request.user != room.owner:
             raise PermissionDenied
@@ -223,14 +228,16 @@ class RoomReviews(APIView):
         return Response(serializer.data)
 
 class RoomPhotos(APIView):
+    permission_classes= [IsAuthenticatedOrReadOnly]
     def get_object(self, pk):
         try:
             return Room.objects.get(pk=pk)
         except Room.DoesNotExist:
             raise NotFound
     def post(self, request, pk):
-        if not request.user.is_authenticated:
-            raise NotAuthenticated
+        # if not request.user.is_authenticated:
+        #     raise NotAuthenticated
+        # permission_classes로 대체할 수 있다.
         room = self.get_object(pk)
         if request.user != room.owner:
             raise PermissionDenied
