@@ -3,6 +3,7 @@ from .models import Amenity, Room
 from users.serializers import TinyUserSerializer
 from categories.serializers import CategorySerializer
 from medias.serializers import PhotoSerializer
+from wishlists.models import Wishlist
 
 class AmenitySerializer(ModelSerializer):
     class Meta:
@@ -16,9 +17,13 @@ class RoomListSerializer(ModelSerializer):
     is_owner = SerializerMethodField()
     def get_is_owner(self, room):
         return self.context.get("request").user == room.owner
+    is_wishlist = SerializerMethodField()
+    def get_is_wishlist(self, room):
+        request = self.context.get("request")
+        return Wishlist.objects.filter(user=request.user, rooms__id=room.pk).exists()
     class Meta:
         model = Room
-        fields = ['pk', 'name', 'country', 'city', 'price','rating','is_owner']
+        fields = ['pk', 'name', 'country', 'city', 'price','rating','is_owner','is_wishlist']
 
 class RoomDetailSerializer(ModelSerializer):
     # Model에서 ForeignKey가 저장되어있는 field는 그냥 ForeignKey(id, 숫자)만 보여진다.
@@ -54,6 +59,13 @@ class RoomDetailSerializer(ModelSerializer):
             return request.user == room.owner
         else:
             return "확인할 수 없습니다."       
+    is_wishlist = SerializerMethodField()
+    def get_is_wishlist(self, room):
+        request = self.context.get("request")
+        return Wishlist.objects.filter(user=request.user, rooms__id=room.pk).exists()
+        # user=request.user이고 id=room.pk인 room을 가지고 있는 wishlist를 가져온다.
+        # To span a relationship in Django Lookups, use the field name of related fields across models, separated by double underscores, until you get to the field you want.
+        # https://docs.djangoproject.com/en/4.2/topics/db/queries/#lookups-that-span-relationships
 
     class Meta:
         model = Room
