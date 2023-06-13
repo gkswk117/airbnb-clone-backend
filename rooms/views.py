@@ -125,9 +125,14 @@ class SeeOneRoom(APIView):
         except Room.DoesNotExist:
             raise NotFound
     def get(self, request, pk):
-        serializer = RoomDetailSerializer(self.get_object(pk), context={"request":request})
+        room=self.get_object(pk)
+        serializer = RoomDetailSerializer(room, context={"request":request})
+        print(dir(room))
+        print(room.photo_set)
+        print(room.city)
+        for each in room.photo_set.all():
+            print(each.file)
         return Response(serializer.data)
-
     def put(self, request, pk):
         # if not request.user.is_authenticated:
         #     raise NotAuthenticated
@@ -170,8 +175,8 @@ class SeeOneRoom(APIView):
 
     def delete(self, request, pk):
         room = self.get_object(pk)
-        if not request.user.is_authenticated:
-            raise NotAuthenticated
+        # if not request.user.is_authenticated:
+        #     raise NotAuthenticated
         if request.user != room.owner:
             raise PermissionDenied
         room.delete()
@@ -179,8 +184,8 @@ class SeeOneRoom(APIView):
     
     # transaction 연습용 코드
     def put_v2(self, request, pk):
-        if not request.user.is_authenticated:
-            raise NotAuthenticated
+        # if not request.user.is_authenticated:
+        #     raise NotAuthenticated
         room = self.get_object(pk)
         if request.user != room.owner:
             raise PermissionDenied
@@ -208,6 +213,7 @@ class SeeOneRoom(APIView):
                 raise ParseError("Amenity not found")
 
 class RoomReviews(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
     def get_object(self, pk):
         try:
             return Room.objects.get(pk=pk)
@@ -226,6 +232,14 @@ class RoomReviews(APIView):
         # pagination => [n:m] n번째부터 m번째 앞까지 불러오시오.
         # from django.conf import settings => settings.py에 있는 설정값을 불러온다.
         return Response(serializer.data)
+    def post(self, request, pk):
+        room = self.get_object(pk)
+        serializer = ReviewSerializer(data=request.data)
+        if serializer.is_valid():
+            review = serializer.save(user=request.user, room=room)
+            return Response(ReviewSerializer(review).data)
+        else:
+            return Response(serializer.errors)
 
 class RoomPhotos(APIView):
     permission_classes= [IsAuthenticatedOrReadOnly]
@@ -244,7 +258,6 @@ class RoomPhotos(APIView):
         serializer = PhotoSerializer(data=request.data)
         if serializer.is_valid():
             photo= serializer.save(room=room)
-            print("여기까진 되냐?")
             return Response(PhotoSerializer(photo).data)
         else:
             return Response(serializer.errors)

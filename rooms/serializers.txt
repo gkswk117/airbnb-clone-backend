@@ -1,0 +1,20 @@
+class RoomDetailSerializer(ModelSerializer):
+    owner = TinyUserSerializer(read_only=True)
+    category = CategorySerializer(read_only=True)
+    amenities = AmenitySerializer(read_only=True, many=True)
+    photo_set = PhotoSerializer(read_only=True, many=True)
+
+    rating = SerializerMethodField()
+    def get_rating(self, room):
+        return room.rating_average()
+    is_owner = SerializerMethodField()
+    def get_is_owner(self, room):
+        request = self.context.get("request")
+        if request:
+            return request.user == room.owner
+        else:
+            return "확인할 수 없습니다."
+
+    class Meta:
+        model = Room
+        fields = "__all__"

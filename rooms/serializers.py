@@ -2,6 +2,7 @@ from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from .models import Amenity, Room
 from users.serializers import TinyUserSerializer
 from categories.serializers import CategorySerializer
+from medias.serializers import PhotoSerializer
 
 class AmenitySerializer(ModelSerializer):
     class Meta:
@@ -21,26 +22,30 @@ class RoomListSerializer(ModelSerializer):
 
 class RoomDetailSerializer(ModelSerializer):
     # Model에서 ForeignKey가 저장되어있는 field는 그냥 ForeignKey(id, 숫자)만 보여진다.
-    # 만약 ForeignKey로 연결되어있는 모델을 가져와 보여주고 싶다면 아래와 같이 각 모델의 Serializer를 이용한다.
+    # depth=1은 모든 걸 다 보여준다.
+    # Representing foreign key values in Django serializers => Using a nested serializer
     owner = TinyUserSerializer(read_only=True)
     category = CategorySerializer(read_only=True)
     amenities = AmenitySerializer(read_only=True, many=True)
-    # owner, category, amenities에 대한 data는 사용자의 request에 의해 직접적으로 수정되지 않음.
-    # new_room = serializer.save(owner=request.user, category=category, amenities=amenities_list)
-    # 처럼 내가 서버쪽에서 코드를 짜서 넣어줄 것.
-    
-    # Reverse Serializer
-    # Reverse Accessor 덕분에 Room 모델 안에는 review_set field가 자동으로 생성되어 있다.
+    # Reverse Accessor라고 해서 다를게 없다. 위의 owner, category, amenities랑 똑같다.
+    photo_set = PhotoSerializer(read_only=True, many=True)
     # review_set = ReviewSerializer(read_only=True, many=True)
-
-    # 하지만 이 방법은 모든 review를 다 가지고 오기 때문에, 너무 많은 데이터를 가져오게된다.
-    # review가 10,000개면 10,000개 다 불러올거? ㄴㄴ
+    # 하지만 review의 경우 이 방법은 모든 review를 다 가지고 오기 때문에, 너무 많은 데이터를 가져오게된다.
+    # review가 10,000개면 10,000개를 한번에 다 불러올거? ㄴㄴ
     # 그래서 사용할 것이 pagination
 
+    """
+    # name, city, country, address field는 request.data를 그대로 validated_data에 넣을 것.
+    # owner, category, amenities field는 request.data로는 숫자(pk)만 전달받고, 서버 메소드에서 해당 pk를 가진 인스턴스를 검색해서 따로 넣어줄 것.
+    # new_room = serializer.save(owner=request.user, category=category, amenities=amenities_list)
+    """
+
+    # Custom Field
     # 원래는 Model에 있는 field만 ModelSerializer에서 field로 쓸 수 있지만,
     # SerializerMethodField를 통해 custom field를 만들 수 있다.
     rating = SerializerMethodField()
     def get_rating(self, room):
+        # get_rating을 호출할 때 SerializerMethodField는 알아서 (???)를 넣어준다.
         return room.rating_average()
     is_owner = SerializerMethodField()
     def get_is_owner(self, room):
@@ -49,7 +54,7 @@ class RoomDetailSerializer(ModelSerializer):
             return request.user == room.owner
         else:
             return "확인할 수 없습니다."       
-    
+
     class Meta:
         model = Room
         fields = "__all__"
