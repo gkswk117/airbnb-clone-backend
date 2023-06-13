@@ -13,6 +13,7 @@ DELETE /rooms/1/photos/1
 
 GET POST /wishlists
 GET PUT DELETE /wishlists/1
+PUT /wishlists/1/rooms/2
 is_liked
 
 ### Users
