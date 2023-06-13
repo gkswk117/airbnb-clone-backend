@@ -63,7 +63,7 @@ class RoomDetailSerializer(ModelSerializer):
         # 어떤 걸 확장할지 내가 선택해서 커스터마이징하고 싶다면 Meta 앞에 => owner = TinyUserSerializer() 추가.
     
     # def create(self, validated_data):
-    #     print("내가 돌아왔다!")
+    #     print("ModelSerializer에서도 save()를 실행했을때 create() or update() 메소드가 실행되는지 확인용!!!")
     #     print(validated_data)
     #     return
     
