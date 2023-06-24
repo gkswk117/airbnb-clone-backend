@@ -50,7 +50,9 @@ class RoomDetailSerializer(ModelSerializer):
     # SerializerMethodField를 통해 custom field를 만들 수 있다.
     rating = SerializerMethodField()
     def get_rating(self, room):
-        # get_rating을 호출할 때 SerializerMethodField는 알아서 (???)를 넣어준다.
+        # get_rating을 호출할 때 SerializerMethodField는 알아서 object를 넣어준다.
+        # 여기서 object는 views.py에서 serialize 된 room object를 뜻한다.
+        # => serializer = RoomDetailSerializer(room, context={"request":request})
         return room.rating_average()
     is_owner = SerializerMethodField()
     def get_is_owner(self, room):
@@ -58,13 +60,14 @@ class RoomDetailSerializer(ModelSerializer):
         if request:
             return request.user == room.owner
         else:
-            return "확인할 수 없습니다."       
+            return "확인할 수 없습니다."
     is_wishlist = SerializerMethodField()
     def get_is_wishlist(self, room):
         request = self.context.get("request")
         return Wishlist.objects.filter(user=request.user, rooms__id=room.pk).exists()
         # user=request.user이고 id=room.pk인 room을 가지고 있는 wishlist를 가져온다.
-        # To span a relationship in Django Lookups, use the field name of related fields across models, separated by double underscores, until you get to the field you want.
+        # To span a relationship in Django Lookups, use the field name of related fields across models,
+        # separated by double underscores, until you get to the field you want.
         # https://docs.djangoproject.com/en/4.2/topics/db/queries/#lookups-that-span-relationships
 
     class Meta:

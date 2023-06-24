@@ -1,15 +1,18 @@
+from django.conf import settings
+from django.db import transaction
+from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_204_NO_CONTENT
 from rest_framework.exceptions import NotFound, NotAuthenticated, ParseError, PermissionDenied
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from django.db import transaction
 from .models import Amenity, Room
-from categories.models import Category
 from .serializers import AmenitySerializer, RoomListSerializer, RoomDetailSerializer
+from categories.models import Category
 from reviews.serializers import ReviewSerializer
 from medias.serializers import PhotoSerializer
-from django.conf import settings
+from bookings.models import Booking
+from bookings.serializers import UserBookingSerializer, OwnerBookingSerializer
 
 # Create your views here.
 # (2) rest api for react
@@ -171,7 +174,7 @@ class SeeOneRoom(APIView):
                     raise ParseError('Amenity whose id is does not exist.')
         print(save_object)
         updated_room = serializer.save(**save_object)
-        return Response(RoomDetailSerializer(updated_room).data)
+        return Response(RoomDetailSerializer(updated_room, context={"request":request}).data)
 
     def delete(self, request, pk):
         room = self.get_object(pk)
@@ -262,3 +265,17 @@ class RoomPhotos(APIView):
         else:
             return Response(serializer.errors)
         
+class RoomBookings(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    def get_object(self, pk):
+        try:
+            return Room.objects.get(pk=pk)
+        except Room.DoesNotExist:
+            raise NotFound
+    def get(self, request, pk):
+        room = self.get_object(pk)
+        now = timezone.localtime(timezone.now()).date()
+        print(now)
+        bookings = Booking.objects.filter(room=room, kind=Booking.BookingKindChoices.ROOMS, check_in__gt=now)
+        serializer = UserBookingSerializer(bookings, many=True)
+        return Response(serializer.data)
