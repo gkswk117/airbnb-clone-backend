@@ -12,7 +12,7 @@ from categories.models import Category
 from reviews.serializers import ReviewSerializer
 from medias.serializers import PhotoSerializer
 from bookings.models import Booking
-from bookings.serializers import UserBookingSerializer, OwnerBookingSerializer
+from bookings.serializers import CreateRoomBookingSerializer, UserBookingSerializer, OwnerBookingSerializer
 
 # Create your views here.
 # (2) rest api for react
@@ -279,3 +279,10 @@ class RoomBookings(APIView):
         bookings = Booking.objects.filter(room=room, kind=Booking.BookingKindChoices.ROOMS, check_in__gt=now)
         serializer = UserBookingSerializer(bookings, many=True)
         return Response(serializer.data)
+    def post(self, request, pk):
+        room = self.get_object(pk)
+        serializer = UserBookingSerializer(data=request.data)
+        if serializer.is_valid():
+            check_in = request.data.get('check_in')
+        else:
+            return Response(serializer.errors)
