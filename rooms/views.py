@@ -283,7 +283,7 @@ class RoomBookings(APIView):
         room = self.get_object(pk)
         serializer = CreateRoomBookingSerializer(data=request.data)
         if serializer.is_valid():
-            check_in = request.data.get('check_in')
-            return Response({"ok":True})
+            booking = serializer.save(user=request.user, kind=Booking.BookingKindChoices.ROOMS, room=room)
+            return Response(UserBookingSerializer(booking).data)
         else:
             return Response(serializer.errors)

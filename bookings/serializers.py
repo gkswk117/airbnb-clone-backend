@@ -33,7 +33,7 @@ class CreateRoomBookingSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Check-out date should be later than Check-in date.")
         if Booking.objects.filter(
             check_in__lte=data.get("check_out"),
-            check_out_gte=data.get("check_in"),
+            check_out__gte=data.get("check_in"),
         ).exists():
             raise serializers.ValidationError("Another Booking is already exists on that period.")
         return data
