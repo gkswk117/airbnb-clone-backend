@@ -5,7 +5,7 @@ from rest_framework.exceptions import ParseError
 from rest_framework.exceptions import NotFound, NotAuthenticated, ParseError, PermissionDenied
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from .models import User
-from .serializers import PrivateUserSerializer
+from .serializers import PrivateUserSerializer, TinyUserSerializer
 
 # Create your views here.
 class MyPage(APIView):
@@ -22,7 +22,7 @@ class MyPage(APIView):
         else:
             return Response(serializer.errors)
 
-class User(APIView):
+class CreateUser(APIView):
     def post(self, request):
         password = request.data.get('password')
         if not password:
@@ -40,3 +40,28 @@ class User(APIView):
             return Response(PrivateUserSerializer(user).data)
         else:
             return Response(serializer.errors)
+
+class SeeOneUser(APIView):
+    def get(self, request, username):
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            raise NotFound
+        print(user)
+        return Response(TinyUserSerializer(user).data)
+ 
+class ChangePassword(APIView):
+    permission_classes = [IsAuthenticated]
+    def put(self, request):
+        user = request.user
+        old_password = request.data.get('old-password')
+        new_password = request.data.get('new-password')
+        if not old_password or not new_password:
+            raise ParseError
+        if user.check_password(old_password):
+        # AbstractUser의 check_password() 메소드를 이용할 것.
+            user.set_password(new_password)
+            user.save()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
