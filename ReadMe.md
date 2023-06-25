@@ -22,6 +22,7 @@ GET PUT /mypage
 POST /users
 GET /users/username
 POST /users/log-in
+POST /users/log-out
 POST /users/change-password
 
 아래였다가 #12.0에서 갑자기 위로 바뀜.
