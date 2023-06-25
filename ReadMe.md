@@ -18,6 +18,14 @@ is_liked
 
 ### Users
 
+GET PUT /mypage
+POST /users
+GET /users/username
+POST /users/log-in
+POST /users/change-password
+
+아래였다가 #12.0에서 갑자기 위로 바뀜.
+
 POST /users
 GET /users/rooms
 GET /users/rooms

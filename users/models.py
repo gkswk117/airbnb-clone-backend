@@ -10,7 +10,7 @@ class User(AbstractUser):
     is_host = models.BooleanField(default="False")
     # 이렇게 하면 이전의 record(row, 데이터)에는 모두 default 값이 들어갈 것.
     # or is_host = models.BooleanField(null=True)
-    avatar=models.ImageField(blank=True)
+    avatar=models.URLField(blank=True)
     class GenderChoices(models.TextChoices):
         MALE = ("male", "Male")
         FEMALE = ("female", "Female")
