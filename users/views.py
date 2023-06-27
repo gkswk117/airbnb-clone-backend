@@ -91,3 +91,18 @@ class LogOut(APIView):
         logout(request)
         # 단 한 줄로 django는 user를 로그아웃 시킬 것.
         return Response({"ok":"Logged out!"})
+
+class JWTLogIn(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        if not username or not password:
+            raise ParseError
+        user= authenticate(request, username=username, password=password)
+        if user:
+            """We have to sign the token here"""
+            token = jwt.encode({"pk":user.pk}, settings.SECRET_KEY, algorithm="HS256")
+            print("done!!!!!!!!!")
+            return Response({'token':token})
+        else:
+            return Response({"error":"wrong password"})
