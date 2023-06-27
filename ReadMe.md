@@ -35,7 +35,7 @@ GET /users/bookings
 GET PUT /users/1
 GET /users/1/reviews
 
-# Experiences
+# Experiences [코드 챌린지]
 
 GET POST /experiences
 GET PUT DELETE /experiences

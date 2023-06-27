@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 THIRD_PARTY_APPS = [
     "rest_framework",
+    "rest_framework.authtoken",
 ]
 # django rest framework를 설치한 다음에 INSTALLED_APPS에 추가해줘야 한다고 적혀있음.
 
@@ -155,3 +156,11 @@ MEDIA_ROOT = "uploads"
 MEDIA_URL = "user-uploads/"
 # 이건 파일을 사용자에게 노출하는 방법이고, 위에꺼는 서버에 파일이 실제로 있는 위치.
 PAGE_SIZE = 3
+
+REST_FRAMEWORK={
+    "DEFAULT_AUTHENTICATION_CLASSES":[
+        "rest_framework.authentication.SessionAuthentication",
+        "config.authentication.TrustMeBroAuthentication",
+    ]
+    # 위에서부터 순서대로 user를 찾는다.
+}

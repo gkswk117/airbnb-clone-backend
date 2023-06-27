@@ -55,7 +55,6 @@ class SeeOneAmenity(APIView):
 class SeeAllRooms(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
     def get(self, request):
-        print(request.user)
         all_rooms=Room.objects.all()
         serializer=RoomListSerializer(all_rooms,many=True,context={"request":request})
         return Response(serializer.data)

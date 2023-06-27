@@ -1,3 +1,5 @@
+import jwt
+from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -74,6 +76,7 @@ class LogIn(APIView):
         if not username or not password:
             raise ParseError
         user= authenticate(request, username=username, password=password)
+        # django가 자동으로 비밀번호 hash화 해서 유저를 찾아줄 것임.
         if user:
             login(request, user)
             # 단 한 줄로 django는 user를 로그인 시킬 것.

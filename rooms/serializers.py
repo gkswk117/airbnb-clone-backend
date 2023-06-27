@@ -20,6 +20,8 @@ class RoomListSerializer(ModelSerializer):
     is_wishlist = SerializerMethodField()
     def get_is_wishlist(self, room):
         request = self.context.get("request")
+        if request.user.is_anonymous:
+            return None
         return Wishlist.objects.filter(user=request.user, rooms__id=room.pk).exists()
     class Meta:
         model = Room
