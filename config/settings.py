@@ -161,7 +161,8 @@ REST_FRAMEWORK={
     "DEFAULT_AUTHENTICATION_CLASSES":[
         "rest_framework.authentication.SessionAuthentication",
         "config.authentication.TrustMeBroAuthentication",
-        "rest_framework.authentication.TokenAuthentication",
+        # "rest_framework.authentication.TokenAuthentication",
+        "config.authentication.JWTAuthentication",
     ]
     # 위에서부터 순서대로 user를 찾는다.
 }
