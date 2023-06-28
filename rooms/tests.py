@@ -22,3 +22,15 @@ class TestAmenities(APITestCase):
         self.assertEqual(len(data),1)
         self.assertEqual(data[0].get("name"), self.NAME)
         self.assertEqual(data[0].get("description"), self.DESCRIPTION)
+    def test_create_amenity(self):
+        NEW_AMENITY_NAME = "New Amenity"
+        NEW_AMENITY_DESCRIPTION = "New Amenity desc."
+        response = self.client.post("/api/v1/rooms/amenities/", data={"name":NEW_AMENITY_NAME, "description":NEW_AMENITY_DESCRIPTION})
+        data = response.json()
+        self.assertEqual(response.status_code, 200, "Not 200 status code")
+        self.assertEqual(data["name"], NEW_AMENITY_NAME)
+        self.assertEqual(data["description"], NEW_AMENITY_DESCRIPTION)
+        response = self.client.post("/api/v1/rooms/amenities/")
+        data = response.json()
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("name", data)
