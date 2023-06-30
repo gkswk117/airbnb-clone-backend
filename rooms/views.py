@@ -45,7 +45,7 @@ class SeeOneAmenity(APIView):
             updated_amenity = serializer.save()
             return Response(AmenitySerializer(updated_amenity).data)
         else:
-            return Response(serializer.errors)
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
         
     def delete(self,request,pk):
         amenity = self.get_object(pk)
@@ -66,7 +66,7 @@ class SeeAllRooms(APIView):
         # 그리고 이 코드는 permission_classes로 대체할 수 있다.
         serializer = RoomDetailSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response(serializer.errors)
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
         category_pk = request.data["category"]
         # 당연 사용자는 request를 보낼 때 pk를 숫자로 직접 입력하지 않는다. 내가 예쁜 UI를 만들어서 선택하게 할 것.
         if not category_pk:
