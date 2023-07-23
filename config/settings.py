@@ -39,6 +39,7 @@ ALLOWED_HOSTS = []
 THIRD_PARTY_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
+    "corsheaders",
 ]
 # django rest framework를 설치한 다음에 INSTALLED_APPS에 추가해줘야 한다고 적혀있음.
 
@@ -77,6 +78,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -172,3 +174,5 @@ REST_FRAMEWORK={
     ]
     # 위에서부터 순서대로 user를 찾는다.
 }
+
+CORS_ALLOWED_ORIGINS=["http://localhost:3000"]

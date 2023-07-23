@@ -69,7 +69,6 @@ class TestAmenity(APITestCase):
         print("slsislsy")
         self.assertEqual(response.status_code, 204, self.message_status_code(204))
 
-
 class TestRooms(APITestCase):
     def setUp(self):
         user = User.objects.create(username="test")
