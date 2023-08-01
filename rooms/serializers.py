@@ -66,7 +66,9 @@ class RoomDetailSerializer(ModelSerializer):
     is_wishlist = SerializerMethodField()
     def get_is_wishlist(self, room):
         request = self.context.get("request")
-        return Wishlist.objects.filter(user=request.user, rooms__id=room.pk).exists()
+        if request.user.is_authenticated:
+            return Wishlist.objects.filter(user=request.user, rooms__id=room.pk).exists()
+        return False
         # user=request.user이고 id=room.pk인 room을 가지고 있는 wishlist를 가져온다.
         # To span a relationship in Django Lookups, use the field name of related fields across models,
         # separated by double underscores, until you get to the field you want.
