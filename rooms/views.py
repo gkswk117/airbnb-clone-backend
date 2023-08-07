@@ -225,6 +225,8 @@ class RoomReviews(APIView):
         try:
             page = request.query_params.get('page', 1)
             # url로부터 parameter를 전달받는 방법
+            # http://127.0.0.1:8000/api/v1/rooms/15/reviews?page=2 라고 주소창에 입력
+            # 코드에서는 위와 같이 입력
             page = int(page)
         except ValueError:
             page = 1

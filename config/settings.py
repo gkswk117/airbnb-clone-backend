@@ -175,4 +175,16 @@ REST_FRAMEWORK={
     # 위에서부터 순서대로 user를 찾는다.
 }
 
-CORS_ALLOWED_ORIGINS=["http://localhost:3000"]
+CORS_ALLOWED_ORIGINS=["http://localhost:3000", "http://127.0.0.1:3000"]
+# 위의 도메인에서 우리 서버로 request보내는(fetch하는) 것을 허용하겠다.
+
+CORS_ALLOW_CREDENTIALS = True
+# 브라우저에서 "http://127.0.0.1:8000/api/v1"로 접속할 때는(get request를 보낼 때는) 자동으로 cookie를 포함시켜서 django 서버로 request를 보낸다.
+# airbnb-clone-frontend 자바스크립트 코드에서 "http://127.0.0.1:8000/api/v1"로 request를 보낼때 자동으로 cookie가 포함되지 않는다.
+# 그래서 airbnb-clone-frontend의 axiosInstance에 withCredentials: true 프로퍼티를 추가시켜준다.
+# 하지만 django는 디폴트로 자바스크립트에서 보내는 credentials는 막아놨다.
+# 그래서 CORS_ALLOW_CREDENTIALS = True를 적어주어 쿠키가 cross-site HTTP 요청에 포함될 수 있게 해준다. 기본값은 False이다.
+
+CSRF_TRUSTED_ORIGINS=["http://localhost:3000", "http://127.0.0.1:3000"]
+# 위의 도메인에서 우리 서버로 post request보내는 것을 허용하겠다.
+# 이제 frontend로 가서 request를 보낼 때 header에 쿠키에 있는 csrftoken을 담아서 보내도록 설정해야 한다.
