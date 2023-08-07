@@ -9,5 +9,6 @@ urlpatterns = [
     path('log-out', views.LogOut.as_view()),
     path('token-login', obtain_auth_token),
     path('jwt-login', views.JWTLogIn.as_view()),
+    path('github', views.GithubLogIn.as_view()),
     path('@<str:username>', views.SeeOneUser.as_view())
 ]
