@@ -1,4 +1,5 @@
 import jwt
+import requests
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.views import APIView
@@ -110,6 +111,20 @@ class JWTLogIn(APIView):
 class GithubLogIn(APIView):
     def post(self, request):
         github_token = request.data.get('code')
-        print("github_token is ")
-        print(github_token)
-        return Response({"ok":"github_token was printed."})
+        # frontend에서 django api로 보낸 request를 받는 코드
+        access_token = requests.post(f"https://github.com/login/oauth/access_token?code={github_token}&client_id=ba5320afbf14928eed15&client_secret={settings.GH_SECRET}",
+                                     headers={"Accept":"application/json"})
+        # django server에서 github에 보내는 post request. 
+        # headers={"Access":"application/json"}를 추가해줘서 json response를 리턴값으로 받는다.
+        access_token = access_token.json().get("access_token")
+        user_data = requests.get(
+            "https://api.github.com/user",
+            headers={
+                "Authorization":f"Bearer {access_token}",
+                "Accept":"application/json"
+            },
+        )
+        user_data=user_data.json()
+        print("★★★★★★★★★★★user_data is ★★★★★★★★★★★★")
+        print(user_data)
+        return Response({"user_data":user_data})
