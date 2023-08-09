@@ -46,3 +46,5 @@ GET POST /experiences/1/bookings
 GET PUT DELETE /experiences1/bookings/2
 GET POST /rooms/1/bookings
 GET PUT DELETE /rooms/1/bookings/2
+
+# request 관련 로그 확인 차 Django 내부 코드 수정한거 "#삭제하기"로 메모 남겨둠.

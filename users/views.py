@@ -6,17 +6,25 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ParseError
-from rest_framework.exceptions import NotFound, NotAuthenticated, ParseError, PermissionDenied
+from rest_framework.exceptions import (
+    NotFound,
+    NotAuthenticated,
+    ParseError,
+    PermissionDenied,
+)
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from .models import User
 from .serializers import PrivateUserSerializer, TinyUserSerializer
 
+
 # Create your views here.
 class MyPage(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request):
         user = request.user
         return Response(PrivateUserSerializer(user).data)
+
     def put(self, request):
         user = request.user
         serializer = PrivateUserSerializer(user, data=request.data, partial=True)
@@ -26,9 +34,10 @@ class MyPage(APIView):
         else:
             return Response(serializer.errors)
 
+
 class CreateUser(APIView):
     def post(self, request):
-        password = request.data.get('password')
+        password = request.data.get("password")
         if not password:
             raise ParseError
         serializer = PrivateUserSerializer(data=request.data)
@@ -39,11 +48,12 @@ class CreateUser(APIView):
             user.set_password(password)
             print("이건됨???")
             user.save()
-            
+
             # 이러면 django는 자동으로 password를 hash화 시켜준다.
             return Response(PrivateUserSerializer(user).data)
         else:
             return Response(serializer.errors)
+
 
 class SeeOneUser(APIView):
     def get(self, request, username):
@@ -53,78 +63,115 @@ class SeeOneUser(APIView):
             raise NotFound
         print(user)
         return Response(TinyUserSerializer(user).data)
- 
+
+
 class ChangePassword(APIView):
     permission_classes = [IsAuthenticated]
+
     def put(self, request):
         user = request.user
-        old_password = request.data.get('old-password')
-        new_password = request.data.get('new-password')
+        old_password = request.data.get("old-password")
+        new_password = request.data.get("new-password")
         if not old_password or not new_password:
             raise ParseError
         if user.check_password(old_password):
-        # AbstractUser의 check_password() 메소드를 이용할 것.
+            # AbstractUser의 check_password() 메소드를 이용할 것.
             user.set_password(new_password)
             user.save()
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        
+
+
 class LogIn(APIView):
     def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
+        username = request.data.get("username")
+        password = request.data.get("password")
         if not username or not password:
             raise ParseError
-        user= authenticate(request, username=username, password=password)
+        user = authenticate(request, username=username, password=password)
         # django가 자동으로 비밀번호 hash화 해서 유저를 찾아줄 것임.
         if user:
             login(request, user)
             # 단 한 줄로 django는 user를 로그인 시킬 것.
             # 자동으로 백엔드에서 user 정보가 담긴 session을 생성하고, 사용자에게 cookie를 보내줄 것.
-            return Response({"ok":"Welcome"})
+            return Response({"ok": "Welcome"})
         else:
-            return Response({"error":"wrong password"})
-        
+            return Response({"error": "wrong password"})
+
+
 class LogOut(APIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request):
         logout(request)
         # 단 한 줄로 django는 user를 로그아웃 시킬 것.
-        return Response({"ok":"Logged out!"})
+        return Response({"ok": "Logged out!"})
+
 
 class JWTLogIn(APIView):
     def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
+        username = request.data.get("username")
+        password = request.data.get("password")
         if not username or not password:
             raise ParseError
-        user= authenticate(request, username=username, password=password)
+        user = authenticate(request, username=username, password=password)
         if user:
             """We have to sign the token here"""
-            token = jwt.encode({"pk":user.pk}, settings.SECRET_KEY, algorithm="HS256")
+            token = jwt.encode({"pk": user.pk}, settings.SECRET_KEY, algorithm="HS256")
             print("done!!!!!!!!!")
-            return Response({'token':token})
+            return Response({"token": token})
         else:
-            return Response({"error":"wrong password"})
-        
+            return Response({"error": "wrong password"})
+
+
 class GithubLogIn(APIView):
     def post(self, request):
-        github_token = request.data.get('code')
+        github_token = request.data.get("code")
         # frontend에서 django api로 보낸 request를 받는 코드
-        access_token = requests.post(f"https://github.com/login/oauth/access_token?code={github_token}&client_id=ba5320afbf14928eed15&client_secret={settings.GH_SECRET}",
-                                     headers={"Accept":"application/json"})
-        # django server에서 github에 보내는 post request. 
+        access_token = requests.post(
+            f"https://github.com/login/oauth/access_token?code={github_token}&client_id=ba5320afbf14928eed15&client_secret={settings.GH_SECRET}",
+            headers={"Accept": "application/json"},
+        )
+        # django server에서 github에 보내는 post request.
         # headers={"Access":"application/json"}를 추가해줘서 json response를 리턴값으로 받는다.
         access_token = access_token.json().get("access_token")
         user_data = requests.get(
             "https://api.github.com/user",
             headers={
-                "Authorization":f"Bearer {access_token}",
-                "Accept":"application/json"
+                "Authorization": f"Bearer {access_token}",
+                "Accept": "application/json",
             },
         )
-        user_data=user_data.json()
+        user_data = user_data.json()
         print("★★★★★★★★★★★user_data is ★★★★★★★★★★★★")
         print(user_data)
-        return Response({"user_data":user_data})
+
+        user_email = requests.get(
+            "https://api.github.com/user/emails",
+            headers={
+                "Authorization": f"Bearer {access_token}",
+                "Accept": "application/json",
+            },
+        )
+        print("★★★★★★★★★★★user_email is ★★★★★★★★★★★★")
+        user_email = user_email.json()
+        # print("★★★★★★★★★★★user_email is ★★★★★★★★★★★★")
+        print(user_email)
+        # print(user_email[0]["email"])
+        try:
+            user = User.objects.get(email=user_email[0]["email"])
+            login(request, user)
+            return Response(status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            user = User.objects.create(
+                name=user_data.get("name"),
+                username=user_data.get("login"),
+                email=user_email[0]["email"],
+                avatar=user_data.get("avatar_url"),
+            )
+            user.set_unusable_password()
+            print(user.has_usable_password)  # 소셜 로그인하는 유저인지, 일반 유저인지 판단할 수 있다.
+            user.save()
+            login(request, user)
+            return Response(status=status.HTTP_200_OK)

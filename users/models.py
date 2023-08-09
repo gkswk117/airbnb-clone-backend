@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+
 # Create your models here.
 class User(AbstractUser):
     first_name = models.CharField(max_length=10, editable=False)
@@ -10,21 +11,34 @@ class User(AbstractUser):
     is_host = models.BooleanField(default="False")
     # 이렇게 하면 이전의 record(row, 데이터)에는 모두 default 값이 들어갈 것.
     # or is_host = models.BooleanField(null=True)
-    avatar=models.URLField(blank=True)
+    avatar = models.URLField(blank=True)
+
     class GenderChoices(models.TextChoices):
         MALE = ("male", "Male")
         FEMALE = ("female", "Female")
-    gender = models.CharField(max_length=10, choices=GenderChoices.choices,)
+
+    gender = models.CharField(
+        max_length=10,
+        choices=GenderChoices.choices,
+    )
+
     class LanguageChoices(models.TextChoices):
         KR = ("kr", "Korean")
         EN = ("en", "English")
         # ("데이터베이스에 들어갈 value", "admin 패널에 보이게 될 value")
-    language = models.CharField(max_length=10, choices=LanguageChoices.choices,)
+
+    language = models.CharField(
+        max_length=10,
+        choices=LanguageChoices.choices,
+    )
+
     class CurrencyChoices(models.TextChoices):
         WON = "won", "Korean Won"
         USD = "usd", "Dollar"
         # Tuple을 적을때, ()를 생략해도 된다.
+
     currency = models.CharField(max_length=10, choices=CurrencyChoices.choices)
+
 
 # House model은 완전히 처음부터 우리가 다 만들어서 models.Model라고 빈 껍데기만 상속 받았음.
 # 하지만 User model은 Django의 user model의 속성 및 메소드를 모두 상속받을 것. CTRL+클릭 하면 속성 및 메서드를 모두 확인할 수 있다.
