@@ -25,6 +25,12 @@ KAKAO_REQ_USER_INFO_URL = "https://kapi.kakao.com/v2/user/me"
 
 
 # Create your views here.
+class IsLoggedIn(APIView):
+    def get(self, request):
+        user = request.user
+        return Response({"result": user.is_authenticated})
+
+
 class MyPage(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -93,15 +99,19 @@ class LogIn(APIView):
         password = request.data.get("password")
         if not username or not password:
             raise ParseError
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({"result": "DoesNotExist"})
         user = authenticate(request, username=username, password=password)
         # django가 자동으로 비밀번호 hash화 해서 유저를 찾아줄 것임.
         if user:
             login(request, user)
             # 단 한 줄로 django는 user를 로그인 시킬 것.
             # 자동으로 백엔드에서 user 정보가 담긴 session을 생성하고, 사용자에게 cookie를 보내줄 것.
-            return Response({"ok": "Welcome"})
+            return Response({"result": "Success"})
         else:
-            return Response({"error": "wrong password"})
+            return Response({"result": "wrong password"})
 
 
 class LogOut(APIView):
