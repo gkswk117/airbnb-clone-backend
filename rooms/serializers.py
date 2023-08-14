@@ -5,27 +5,45 @@ from categories.serializers import CategorySerializer
 from medias.serializers import PhotoSerializer
 from wishlists.models import Wishlist
 
+
 class AmenitySerializer(ModelSerializer):
     class Meta:
         model = Amenity
-        fields = ('name','description')
-        
+        fields = ("pk", "name", "description")
+
+
 class RoomListSerializer(ModelSerializer):
     rating = SerializerMethodField()
+
     def get_rating(self, room):
         return room.rating_average()
+
     is_owner = SerializerMethodField()
+
     def get_is_owner(self, room):
         return self.context.get("request").user == room.owner
+
     is_wishlist = SerializerMethodField()
+
     def get_is_wishlist(self, room):
         request = self.context.get("request")
         if request.user.is_anonymous:
             return None
         return Wishlist.objects.filter(user=request.user, rooms__id=room.pk).exists()
+
     class Meta:
         model = Room
-        fields = ['pk', 'name', 'country', 'city', 'price','rating','is_owner','is_wishlist']
+        fields = [
+            "pk",
+            "name",
+            "country",
+            "city",
+            "price",
+            "rating",
+            "is_owner",
+            "is_wishlist",
+        ]
+
 
 class RoomDetailSerializer(ModelSerializer):
     # Model에서 ForeignKey가 저장되어있는 field는 그냥 ForeignKey(id, 숫자)만 보여진다.
@@ -51,23 +69,30 @@ class RoomDetailSerializer(ModelSerializer):
     # 원래는 Model에 있는 field만 ModelSerializer에서 field로 쓸 수 있지만,
     # SerializerMethodField를 통해 custom field를 만들 수 있다.
     rating = SerializerMethodField()
+
     def get_rating(self, room):
         # get_rating을 호출할 때 SerializerMethodField는 알아서 object를 넣어준다.
         # 여기서 object는 views.py에서 serialize 된 room object를 뜻한다.
         # => serializer = RoomDetailSerializer(room, context={"request":request})
         return room.rating_average()
+
     is_owner = SerializerMethodField()
+
     def get_is_owner(self, room):
         request = self.context.get("request")
         if request:
             return request.user == room.owner
         else:
             return "확인할 수 없습니다."
+
     is_wishlist = SerializerMethodField()
+
     def get_is_wishlist(self, room):
         request = self.context.get("request")
         if request.user.is_authenticated:
-            return Wishlist.objects.filter(user=request.user, rooms__id=room.pk).exists()
+            return Wishlist.objects.filter(
+                user=request.user, rooms__id=room.pk
+            ).exists()
         return False
         # user=request.user이고 id=room.pk인 room을 가지고 있는 wishlist를 가져온다.
         # To span a relationship in Django Lookups, use the field name of related fields across models,
@@ -80,13 +105,13 @@ class RoomDetailSerializer(ModelSerializer):
         # depth =1
         # depth=1은 아주 아주 간단하고 빠르게 모델의 모든 관계들을 확장시키는 방법
         # 어떤 걸 확장할지 내가 선택해서 커스터마이징하고 싶다면 Meta 앞에 => owner = TinyUserSerializer() 추가.
-    
+
     # def create(self, validated_data):
     #     print("ModelSerializer에서도 save()를 실행했을때 create() or update() 메소드가 실행되는지 확인용!!!")
     #     print(validated_data)
     #     return
-    
-    # Serializer.save()를 호출할 때, owner=request.user를 넣어줬다고 해서 create를 정의 해줄 필요 없다. 
+
+    # Serializer.save()를 호출할 때, owner=request.user를 넣어줬다고 해서 create를 정의 해줄 필요 없다.
     # 아니, create 메소드를 다시 정의해서 Room의 owner에 User의 pk를 넣어줘야되지 않나?
     # No.
     # save()메서드로 create나 update 메소드의 validated_data에 추가로 데이터를 추가해주고 싶다면,

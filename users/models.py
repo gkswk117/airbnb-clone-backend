@@ -12,7 +12,7 @@ class User(AbstractUser):
     # 이렇게 하면 이전의 record(row, 데이터)에는 모두 default 값이 들어갈 것.
     # or is_host = models.BooleanField(null=True)
     avatar = models.URLField(blank=True)
-    social_login = models.CharField(max_length=20, default="")
+    social_login = models.CharField(max_length=20, default="", blank=True)
     kakao_access_token = models.CharField(max_length=100, default="", blank=True)
 
     class GenderChoices(models.TextChoices):

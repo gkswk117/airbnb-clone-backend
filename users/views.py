@@ -111,7 +111,7 @@ class LogIn(APIView):
             # 자동으로 백엔드에서 user 정보가 담긴 session을 생성하고, 사용자에게 cookie를 보내줄 것.
             return Response({"result": "Success"})
         else:
-            return Response({"result": "wrong password"})
+            return Response({"result": "WrongPassword"})
 
 
 class LogOut(APIView):
@@ -191,7 +191,7 @@ class GithubLogIn(APIView):
         except User.DoesNotExist:
             user = User.objects.create(
                 name=user_data.get("name"),
-                username="github#" + str(user_data.get("id")),
+                username="github_" + str(user_data.get("id")),
                 email=user_email[0]["email"],
                 avatar=user_data.get("avatar_url"),
                 social_login="github",
@@ -242,7 +242,7 @@ class KakaoLogIn(APIView):
                 return Response(serializer.errors)
         except User.DoesNotExist:
             user = User.objects.create(
-                username="kakao#" + str(user_data.get("id")),
+                username="kakao_" + str(user_data.get("id")),
                 name=user_data.get("kakao_account").get("profile").get("nickname"),
                 email=user_data.get("kakao_account").get("email"),
                 avatar=user_data.get("kakao_account")
