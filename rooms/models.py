@@ -1,5 +1,6 @@
 from django.db import models
 from common.models import CommonModel
+
 """
 # Create your models here.
 # expressjs의 mongoose에서 Models의 User.js, Video.js와 같은 작업.
@@ -15,15 +16,18 @@ from common.models import CommonModel
 # 1) 추가하고 싶은 field를 따로 만들어서(예를 들면 profile을 새로 만들어서) 기존의 장고 user model에 연결짓는 방법.
 # 2) 아예 새로 User model을 만드는 방법.
 """
+
+
 class Room(CommonModel):
     """Room Model Definition"""
+
     name = models.CharField(max_length=180, default="")
     country = models.CharField(max_length=50, default="한국")
     city = models.CharField(max_length=80, default="서울")
     price = models.PositiveIntegerField()
     rooms = models.PositiveIntegerField()
     toilets = models.PositiveIntegerField()
-    descriptioin = models.TextField()
+    description = models.TextField(default="")
     address = models.CharField(max_length=250)
     pet_friendly = models.BooleanField(default=True)
     # created_at = models.DateTimeField(auto_now_add=True)
@@ -34,9 +38,15 @@ class Room(CommonModel):
         ENTIRE_PLACE = ("entire_place", "Entire Place")
         PRIVATE_ROOM = ("private_room", "Private Room")
         SHARED_ROOM = ("shared_room", "Shared Room")
-    kind = models.CharField(max_length=50 ,choices=RoomKindChoices.choices)
+
+    kind = models.CharField(max_length=50, choices=RoomKindChoices.choices)
     owner = models.ForeignKey("users.User", on_delete=models.CASCADE)
-    category = models.ForeignKey("categories.Category", on_delete=models.SET_NULL, null=True, blank=True,)
+    category = models.ForeignKey(
+        "categories.Category",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
     """
     # 5.5 Foreign Key
     # MongoDB의 populate와 같은 기능. 다른 모델과 연결을 해준다.
@@ -55,12 +65,13 @@ class Room(CommonModel):
     user.room_set.all()
     """
     amenities = models.ManyToManyField("rooms.Amenity")
+
     # 6.2 Many to Many
     # Foreign Key랑 똑같이 다른 모델과 연결을 해준다. 그 대신 다vs다 연결.
     # First argument => "{application이름}.{model이름}"
     def __str__(self):
-       return self.name
-    
+        return self.name
+
     # 7.3 Admin Method
     def total_amenities_model(self):
         print(f"total_amenities_model 메소드의 첫번째 인자인 self는 {self}")
@@ -69,13 +80,13 @@ class Room(CommonModel):
         # 인스턴스의 타입을 출력해보면 클래스라고 나온다.
         print(f"self.amenities.all() is {self.amenities.all()}")
         print("\n")
-        return "total_amenities_model 입니다. 나는 왜 되냐? + "+str(self.amenities.count())
-    
+        return "total_amenities_model 입니다. 나는 왜 되냐? + " + str(self.amenities.count())
+
     # 8.0 Methods
     def rating_average(self):
-        if len(self.review_set.all())==0:
+        if len(self.review_set.all()) == 0:
             return "리뷰 없음."
-        sum =0
+        sum = 0
         # noob
         # for each in self.review_set.all():
         #     sum = sum+each.rating
@@ -89,16 +100,20 @@ class Room(CommonModel):
         """
         # pro
         for each in self.review_set.all().values("rating"):
-            sum = sum+each["rating"]
-        return round(sum/len(self.review_set.all().values("rating")),1)   
-    
+            sum = sum + each["rating"]
+        return round(sum / len(self.review_set.all().values("rating")), 1)
+
+
 class Amenity(CommonModel):
     """Amenity Definition"""
+
     name = models.CharField(max_length=150)
     description = models.TextField(default="")
+
     def __str__(self):
-       return self.name
-    #2.5 에서 배웠던 내용. 클래스를 print할 때 내가 원하는 것으로 출력하고 싶으면 __str__메서드의 리턴값에 집어넣기.
+        return self.name
+
+    # 2.5 에서 배웠던 내용. 클래스를 print할 때 내가 원하는 것으로 출력하고 싶으면 __str__메서드의 리턴값에 집어넣기.
     # underscroe method에 대한 자세한 내용은 네이버 메모 참고
     """
     class Meta:
@@ -110,13 +125,13 @@ class Amenity(CommonModel):
     [Room1, Room2, Room3] => User1
     Room은 하나의 User만 가질 수 있고, User는 여러 Room을 가질 수 있다.
     """
-    
+
     """
     One To One => models.OneToOneField 이용
     Experience1 => Video1
     Experience는 하나의 Video만 가질 수 있고, Video는 하나의 Experience만 가질 수 있다.
     """
-    
+
     """
     Many To Many => models.ManyToManyField 이용
     [Amenity1, Amenity2, Amenity3] => [Room1, Room2, Room3]

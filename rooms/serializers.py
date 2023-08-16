@@ -14,6 +14,7 @@ class AmenitySerializer(ModelSerializer):
 
 class RoomListSerializer(ModelSerializer):
     rating = SerializerMethodField()
+    photo_set = PhotoSerializer(read_only=True, many=True)
 
     def get_rating(self, room):
         return room.rating_average()
@@ -42,6 +43,7 @@ class RoomListSerializer(ModelSerializer):
             "rating",
             "is_owner",
             "is_wishlist",
+            "photo_set",
         ]
 
 
@@ -80,15 +82,21 @@ class RoomDetailSerializer(ModelSerializer):
 
     def get_is_owner(self, room):
         request = self.context.get("request")
-        if request:
-            return request.user == room.owner
+        if not request:
+            return "요청(requset)이 없습니다."
+        if not request.user:
+            return "유저(user)가 없습니다."
         else:
-            return "확인할 수 없습니다."
+            return request.user == room.owner
 
     is_wishlist = SerializerMethodField()
 
     def get_is_wishlist(self, room):
         request = self.context.get("request")
+        if not request:
+            return "요청(requset)이 없습니다."
+        if not request.user:
+            return "유저(user)가 없습니다."
         if request.user.is_authenticated:
             return Wishlist.objects.filter(
                 user=request.user, rooms__id=room.pk
